@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilderrahmen Verwaltung</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .quick-links {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .quick-links h3 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .link-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .link-card:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .link-icon {
+            font-size: 2rem;
+            width: 50px;
+            text-align: center;
+        }
+
+        .link-text h4 {
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .link-text p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .folder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .folder-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .folder-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .folder-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 48px rgba(0,0,0,0.15);
+        }
+
+        .folder-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .folder-name {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: capitalize;
+        }
+
+        .folder-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .folder-badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-align: center;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e9ecef;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .months-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .months-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .months-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .month-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .month-item:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+
+        .month-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .month-count {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: rgba(255, 107, 107, 0.1);
+            border: 2px solid rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.1) rotate(180deg);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .folder-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .links-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                min-width: 100%;
+            }
+
+            .refresh-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖼️ Bilderrahmen Verwaltung</h1>
+            <p>Verwalte deine Kita-Fotos nach Gruppen und Monaten</p>
+        </div>
+
+        <div class="quick-links">
+            <h3>📱 Tablet-Links für Slideshows</h3>
+            <div class="links-grid" id="tabletLinks">
+                <div class="loading">Lade Gruppen...</div>
+            </div>
+        </div>
+
+        <div class="folder-grid" id="folderGrid">
+            <div class="loading">Lade Gruppen-Daten...</div>
+        </div>
+    </div>
+
+    <button class="refresh-btn" onclick="loadAllFolders()" title="Aktualisieren">
+        ↻
+    </button>
+
+    <script>
+        // Wird während Installation automatisch ersetzt
+        const folders = ['käfer', 'bienen', 'schmetterlinge', 'frösche', 'mäuse']; // Beispiel - wird dynamisch generiert
+
+        let folderData = {};
+        const monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun',
+                           'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+
+        // Folder-Icons für verschiedene Gruppen
+        const folderIcons = {
+            'käfer': '🐛', 'bienen': '🐝', 'schmetterlinge': '🦋',
+            'frösche': '🐸', 'mäuse': '🐭', 'bären': '🐻',
+            'löwen': '🦁', 'elefanten': '🐘', 'hasen': '🐰',
+            'igel': '🦔', 'marienkäfer': '🐞', 'raupen': '🐛',
+            'default': '📱'
+        };
+
+        // Icon für Ordner bestimmen
+        function getFolderIcon(folderName) {
+            const name = folderName.toLowerCase();
+            return folderIcons[name] || folderIcons.default;
+        }
+
+        // Tablet-Links erstellen
+        function createTabletLinks() {
+            const linksContainer = document.getElementById('tabletLinks');
+            linksContainer.innerHTML = '';
+
+            folders.forEach((folder, index) => {
+                const icon = getFolderIcon(folder);
+                const displayName = folder.charAt(0).toUpperCase() + folder.slice(1);
+                const url = `/Fotos/${folder}`;
+
+                const linkCard = document.createElement('a');
+                linkCard.className = 'link-card';
+                linkCard.href = url;
+                linkCard.target = '_blank';
+
+                linkCard.innerHTML = `
+                    <div class="link-icon">${icon}</div>
+                    <div class="link-text">
+                        <h4>Tablet ${index + 1}: ${displayName}</h4>
+                        <p>${url}</p>
+                    </div>
+                `;
+
+                linksContainer.appendChild(linkCard);
+            });
+        }
+
+        // Ordner-Informationen laden
+        async function loadFolderInfo(folderName) {
+            try {
+                const response = await fetch(`/scripts/get_images.php?folder=${encodeURIComponent(folderName)}&month=all&t=${Date.now()}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                folderData[folderName] = data;
+                return data;
+            } catch (error) {
+                console.error(`Fehler beim Laden von ${folderName}:`, error);
+                return {
+                    success: false,
+                    error: error.message,
+                    count: 0,
+                    images: []
+                };
+            }
+        }
+
+        // Alle Ordner laden
+        async function loadAllFolders() {
+            const grid = document.getElementById('folderGrid');
+            grid.innerHTML = '<div class="loading">Lade Gruppen-Daten...</div>';
+
+            // Tablet-Links erstellen
+            createTabletLinks();
+
+            const promises = folders.map(folder => loadFolderInfo(folder));
+            const results = await Promise.all(promises);
+
+            // Grid leeren
+            grid.innerHTML = '';
+
+            // Karten erstellen
+            results.forEach((data, index) => {
+                const folderName = folders[index];
+                if (data && data.success) {
+                    createFolderCard(folderName, data);
+                } else {
+                    createErrorCard(folderName, data?.error || 'Unbekannter Fehler');
+                }
+            });
+        }
+
+        // Ordner-Karte erstellen mit Monats-Übersicht
+        function createFolderCard(folderName, data) {
+            const grid = document.getElementById('folderGrid');
+            const card = document.createElement('div');
+            card.className = 'folder-card';
+
+            const displayName = folderName.charAt(0).toUpperCase() + folderName.slice(1);
+            const imageCount = data.count || 0;
+            const icon = getFolderIcon(folderName);
+
+            // Bilder nach Monaten gruppieren
+            const monthGroups = {};
+            if (data.images) {
+                data.images.forEach(img => {
+                    const monthKey = img.month || 'ungrouped';
+                    if (!monthGroups[monthKey]) {
+                        monthGroups[monthKey] = [];
+                    }
+                    monthGroups[monthKey].push(img);
+                });
+            }
+
+            // Monate sortieren (neueste zuerst)
+            const sortedMonths = Object.keys(monthGroups).sort((a, b) => {
+                if (a === 'ungrouped') return 1;
+                if (b === 'ungrouped') return -1;
+                return b.localeCompare(a);
+            });
+
+            card.innerHTML = `
+                <div class="folder-header">
+                    <div class="folder-name">
+                        <div class="folder-icon">${icon}</div>
+                        ${displayName}
+                    </div>
+                    <div class="folder-badge">${imageCount} Bilder</div>
+                </div>
+
+                <div class="button-group">
+                    <a href="/Fotos/${folderName}" target="_blank" class="btn btn-primary">
+                        ▶️ Slideshow öffnen
+                    </a>
+                    <button class="btn btn-secondary" onclick="openWindowsFolder('${folderName}')">
+                        📁 Windows-Ordner
+                    </button>
+                    <button class="btn btn-secondary" onclick="toggleMonths('${folderName}')">
+                        📅 Monate anzeigen
+                    </button>
+                </div>
+
+                <div class="months-section" id="months-${folderName}" style="display: none;">
+                    <div class="months-header">
+                        <h4>📅 Monate (${sortedMonths.length})</h4>
+                        <small>${imageCount} Bilder gesamt</small>
+                    </div>
+                    <div class="months-grid">
+                        ${sortedMonths.map(month => {
+                            const count = monthGroups[month].length;
+                            const monthDisplay = formatMonthDisplay(month);
+                            return `
+                                <div class="month-item" onclick="openMonthSlideshow('${folderName}', '${month}')">
+                                    <div class="month-name">${monthDisplay}</div>
+                                    <div class="month-count">${count} Bilder</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+
+            grid.appendChild(card);
+        }
+
+        // Monats-Anzeige formatieren
+        function formatMonthDisplay(monthKey) {
+            if (monthKey === 'ungrouped') {
+                return 'Unsortiert';
+            }
+
+            const parts = monthKey.split('/');
+            if (parts.length === 2) {
+                const year = parts[0];
+                const month = parseInt(parts[1]) - 1;
+                return `${monthNames[month]} ${year}`;
+            }
+
+            return monthKey;
+        }
+
+        // Fehler-Karte erstellen
+        function createErrorCard(folderName, error) {
+            const grid = document.getElementById('folderGrid');
+            const card = document.createElement('div');
+            card.className = 'folder-card';
+
+            const displayName = folderName.charAt(0).toUpperCase() + folderName.slice(1);
+            const icon = getFolderIcon(folderName);
+
+            card.innerHTML = `
+                <div class="folder-header">
+                    <div class="folder-name">
+                        <div class="folder-icon">${icon}</div>
+                        ${displayName}
+                    </div>
+                    <div class="folder-badge" style="background: #ff6b6b;">Fehler</div>
+                </div>
+
+                <div class="error">
+                    ⚠️ Fehler beim Laden: ${error}<br>
+                    <small>Prüfe die Ordner-Berechtigungen oder erstelle den Ordner neu.</small>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="loadAllFolders()">
+                        🔄 Erneut versuchen
+                    </button>
+                    <button class="btn btn-secondary" onclick="openWindowsFolder('${folderName}')">
+                        📁 Windows-Ordner
+                    </button>
+                </div>
+            `;
+
+            grid.appendChild(card);
+        }
+
+        // Monate anzeigen/verstecken
+        function toggleMonths(folderName) {
+            const monthsSection = document.getElementById(`months-${folderName}`);
+
+            if (monthsSection.style.display === 'none') {
+                monthsSection.style.display = 'block';
+            } else {
+                monthsSection.style.display = 'none';
+            }
+        }
+
+        // Monats-Slideshow öffnen
+        function openMonthSlideshow(folderName, month) {
+            let url = `/Fotos/${folderName}`;
+
+            if (month !== 'ungrouped') {
+                url += `?month=${encodeURIComponent(month)}`;
+            }
+
+            window.open(url, '_blank');
+        }
+
+        // Windows-Ordner öffnen
+        function openWindowsFolder(folderName) {
+            const hostname = window.location.hostname || 'bilderrahmen.local';
+            const sambaPath = `\\\\${hostname}\\Fotos\\${folderName}`;
+
+            const message = `Windows-Ordner öffnen:\n\n` +
+                `1. Windows Explorer öffnen (Windows + E)\n` +
+                `2. Folgende Adresse eingeben:\n` +
+                `   ${sambaPath}\n\n` +
+                `3. Mit Kita-Benutzerdaten anmelden\n\n` +
+                `Die Adresse wurde in die Zwischenablage kopiert.`;
+
+            // In Zwischenablage kopieren
+            navigator.clipboard.writeText(sambaPath).catch(() => {
+                console.log('Zwischenablage nicht verfügbar');
+            });
+
+            alert(message);
+        }
+
+        // Event-Listener
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAllFolders();
+        });
+
+        // Auto-Refresh alle 2 Minuten
+        setInterval(() => {
+            loadAllFolders();
+        }, 120000);
+
+        // Service Worker für bessere Performance (optional)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {
+                console.log('Service Worker nicht verfügbar');
+            });
+        }
+    </script>
+</body>
+</html>

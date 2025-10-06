@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Kita Slideshow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            cursor: none;
+            touch-action: manipulation;
+        }
+
+        #slideshow {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(45deg, #000 0%, #111 100%);
+        }
+
+        #currentImage {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 15px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.8);
+        }
+
+        #currentImage.visible {
+            opacity: 1;
+        }
+
+        #info {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: #fff;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(15px);
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            border: 1px solid rgba(255,255,255,0.15);
+            min-width: 200px;
+        }
+
+        #info.show {
+            opacity: 0.95;
+        }
+
+        #groupName {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: capitalize;
+        }
+
+        #monthInfo {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        #currentTime {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 28px;
+            font-weight: 300;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        #loading .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1.2s ease-in-out infinite;
+            margin-left: 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        #error {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff6b6b;
+            font-size: 22px;
+            text-align: center;
+            background: rgba(255,107,107,0.1);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid rgba(255,107,107,0.4);
+            max-width: 80%;
+            line-height: 1.6;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 12px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .controls.show {
+            opacity: 0.9;
+        }
+
+        .control-btn {
+            background: rgba(255,255,255,0.25);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(15px);
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .control-btn:hover,
+        .control-btn:active {
+            background: rgba(255,255,255,0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Tablet-optimierte Touch-Bereiche */
+        .touch-area {
+            position: absolute;
+            width: 100px;
+            height: 100vh;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .touch-left {
+            left: 0;
+        }
+
+        .touch-right {
+            right: 0;
+        }
+
+        /* Responsive für verschiedene Tablet-Größen */
+        @media (max-width: 768px) {
+            #info {
+                bottom: 15px;
+                right: 15px;
+                font-size: 14px;
+                padding: 12px 20px;
+            }
+
+            #groupName {
+                font-size: 18px;
+            }
+
+            .controls {
+                bottom: 15px;
+                left: 15px;
+            }
+
+            .control-btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+
+            #currentImage {
+                max-width: 98%;
+                max-height: 98%;
+                border-radius: 10px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            #info {
+                font-size: 18px;
+                padding: 20px 30px;
+            }
+
+            #groupName {
+                font-size: 24px;
+            }
+        }
+
+        /* Landscape/Portrait Optimierung */
+        @media (orientation: landscape) {
+            #currentImage {
+                max-height: 90%;
+            }
+        }
+
+        @media (orientation: portrait) {
+            #currentImage {
+                max-width: 90%;
+            }
+        }
+
+        /* Kein Text-Auswahl auf Tablets */
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="slideshow">
+        <div id="loading">
+            Lade Bilder<span class="spinner"></span>
+        </div>
+        <img id="currentImage" alt="Kita Foto" style="display: none;">
+        <div id="error" style="display: none;"></div>
+
+        <!-- Touch-Bereiche für Tablet-Steuerung -->
+        <div class="touch-area touch-left" onclick="previousImage()" title="Vorheriges Bild"></div>
+        <div class="touch-area touch-right" onclick="nextImage()" title="Nächstes Bild"></div>
+    </div>
+
+    <div id="info">
+        <div id="groupName"></div>
+        <div id="monthInfo"></div>
+        <div><span id="counter">0/0</span></div>
+        <div id="currentTime"></div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn" onclick="togglePause()" id="pauseBtn">⏸️ Pause</button>
+        <button class="control-btn" onclick="previousImage()">⏮️ Zurück</button>
+        <button class="control-btn" onclick="nextImage()">⏭️ Weiter</button>
+        <button class="control-btn" onclick="toggleInfo()" id="infoBtn">ℹ️ Info</button>
+    </div>
+
+    <script>
+        // URL-Parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const folderName = urlParams.get('folder') || extractFolderFromPath();
+        const slideDelay = parseInt(urlParams.get('delay')) || 5000;
+        const shuffle = urlParams.get('shuffle') === 'true';
+        const month = urlParams.get('month') || 'all'; // Format: 2025/01 oder 'all'
+        const autostart = urlParams.get('autostart') !== 'false';
+        const showControls = urlParams.get('controls') !== 'hide';
+
+        // Ordnername aus URL-Pfad extrahieren (für /Fotos/gruppenname URLs)
+        function extractFolderFromPath() {
+            const path = window.location.pathname;
+            const match = path.match(/\/Fotos\/([^/]+)/);
+            return match ? match[1] : 'default';
+        }
+
+        // Globale Variablen
+        let images = [];
+        let currentIndex = 0;
+        let isLoading = false;
+        let isPaused = false;
+        let slideInterval;
+        let controlsTimeout;
+        let infoVisible = true;
+        let touchStartTime = 0;
+
+        // DOM-Elemente
+        const imageElement = document.getElementById('currentImage');
+        const loadingElement = document.getElementById('loading');
+        const errorElement = document.getElementById('error');
+        const counterElement = document.getElementById('counter');
+        const groupNameElement = document.getElementById('groupName');
+        const monthInfoElement = document.getElementById('monthInfo');
+        const currentTimeElement = document.getElementById('currentTime');
+        const infoElement = document.getElementById('info');
+        const controlsElement = document.querySelector('.controls');
+        const pauseBtnElement = document.getElementById('pauseBtn');
+
+        // Initialisierung
+        function init() {
+            // Gruppennamen anzeigen
+            groupNameElement.textContent = folderName.charAt(0).toUpperCase() + folderName.slice(1);
+
+            // Monats-Info
+            if (month === 'all') {
+                monthInfoElement.textContent = 'Alle Monate';
+            } else {
+                const [year, monthNum] = month.split('/');
+                const monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun',
+                                   'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+                monthInfoElement.textContent = `${monthNames[parseInt(monthNum)-1]} ${year}`;
+            }
+
+            // Zeit-Update
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+
+            // Event-Listener
+            document.addEventListener('keydown', handleKeyPress);
+            document.addEventListener('touchstart', handleTouchStart);
+            document.addEventListener('touchend', handleTouchEnd);
+
+            // Touch-Feedback unterdrücken
+            document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+
+            // Controls anzeigen/verstecken
+            if (showControls) {
+                showControlsTemporary();
+            }
+
+            // Tablet-spezifische Einstellungen
+            setupTabletBehavior();
+
+            // Bilder laden und Slideshow starten
+            loadImages();
+        }
+
+        // Tablet-spezifisches Verhalten
+        function setupTabletBehavior() {
+            // Vollbild wenn möglich
+            if (document.documentElement.requestFullscreen && autostart) {
+                setTimeout(() => {
+                    document.documentElement.requestFullscreen().catch(() => {
+                        console.log('Vollbild nicht möglich');
+                    });
+                }, 2000);
+            }
+
+            // Screen-Lock verhindern
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.request('screen').catch(() => {
+                    console.log('Wake Lock nicht möglich');
+                });
+            }
+
+            // Orientation-Change handhaben
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => {
+                    if (images.length > 0) {
+                        showCurrentImage();
+                    }
+                }, 500);
+            });
+        }
+
+        // Touch-Handling für Tablets
+        function handleTouchStart(event) {
+            touchStartTime = Date.now();
+            if (event.touches.length > 1) {
+                // Multi-Touch: Controls anzeigen
+                showControlsTemporary();
+            }
+        }
+
+        function handleTouchEnd(event) {
+            const touchDuration = Date.now() - touchStartTime;
+
+            // Kurzer Tap: Controls anzeigen
+            if (touchDuration < 300) {
+                showControlsTemporary();
+            }
+        }
+
+        // Controls temporär anzeigen
+        function showControlsTemporary() {
+            if (!showControls) return;
+
+            controlsElement.classList.add('show');
+            infoElement.classList.add('show');
+
+            if (controlsTimeout) clearTimeout(controlsTimeout);
+            controlsTimeout = setTimeout(() => {
+                if (!isPaused) {
+                    controlsElement.classList.remove('show');
+                    if (infoVisible) {
+                        infoElement.classList.remove('show');
+                    }
+                }
+            }, 4000);
+        }
+
+        // Aktuelle Zeit anzeigen
+        function updateCurrentTime() {
+            const now = new Date();
+            currentTimeElement.textContent = now.toLocaleTimeString('de-DE', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Bilder vom Server laden
+        async function loadImages() {
+            if (isLoading) return;
+            isLoading = true;
+
+            try {
+                showLoading('Lade Bilder...');
+
+                const url = `/scripts/get_images.php?folder=${encodeURIComponent(folderName)}&month=${encodeURIComponent(month)}&t=${Date.now()}`;
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success && data.images && data.images.length > 0) {
+                    images = data.images;
+
+                    // Shuffle wenn gewünscht
+                    if (shuffle) {
+                        shuffleArray(images);
+                    }
+
+                    hideLoading();
+
+                    // Index zurücksetzen wenn nötig
+                    if (currentIndex >= images.length) {
+                        currentIndex = 0;
+                    }
+
+                    startSlideshow();
+                } else {
+                    const monthText = month === 'all' ? 'der Gruppe' : `für ${monthInfoElement.textContent}`;
+                    showError(`Keine Bilder ${monthText} "${folderName}" gefunden.<br><br>
+                        <small>📱 Fotos mit Android-App hochladen<br>
+                        💻 Oder über Windows: \\\\bilderrahmen.local\\Fotos\\${folderName}</small>`);
+                }
+            } catch (error) {
+                console.error('Fehler beim Laden:', error);
+                showError(`Verbindungsfehler:<br><em>${error.message}</em><br><br>
+                    <small>🌐 Prüfe WLAN-Verbindung<br>
+                    🔄 Seite wird automatisch neu geladen...</small>`);
+
+                // Automatisch neu laden nach 10 Sekunden
+                setTimeout(() => window.location.reload(), 10000);
+            }
+
+            isLoading = false;
+        }
+
+        // Array mischen
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Slideshow starten
+        function startSlideshow() {
+            if (images.length === 0 || !autostart) return;
+
+            showCurrentImage();
+
+            if (!isPaused) {
+                slideInterval = setInterval(() => {
+                    if (!isPaused) {
+                        nextImage();
+                    }
+                }, slideDelay);
+            }
+        }
+
+        // Aktuelles Bild anzeigen
+        function showCurrentImage() {
+            if (images.length === 0) return;
+
+            const currentImage = images[currentIndex];
+
+            // Fade out
+            imageElement.classList.remove('visible');
+
+            setTimeout(() => {
+                // Bild-Pfad konstruieren
+                let imagePath;
+                if (currentImage.path) {
+                    // API gibt relativen Pfad zurück (mit Monats-Info)
+                    imagePath = `/Fotos/${folderName}/${currentImage.path}`;
+                } else {
+                    // Fallback für einfache Namen
+                    imagePath = `/Fotos/${folderName}/${currentImage.name || currentImage}`;
+                }
+
+                // Preload für bessere Performance
+                const img = new Image();
+                img.onload = () => {
+                    imageElement.src = imagePath;
+                    imageElement.style.display = 'block';
+
+                    // Counter aktualisieren
+                    counterElement.textContent = `${currentIndex + 1}/${images.length}`;
+
+                    // Fade in
+                    setTimeout(() => {
+                        imageElement.classList.add('visible');
+                    }, 100);
+                };
+
+                img.onerror = () => {
+                    console.warn(`Bild konnte nicht geladen werden: ${imagePath}`);
+                    nextImage(); // Nächstes Bild versuchen
+                };
+
+                img.src = imagePath;
+            }, 750);
+        }
+
+        // Nächstes Bild
+        function nextImage() {
+            if (images.length === 0) return;
+
+            currentIndex = (currentIndex + 1) % images.length;
+            showCurrentImage();
+
+            // Bei Ende neue Bilder laden (falls neue hinzugekommen)
+            if (currentIndex === 0) {
+                setTimeout(loadImages, 2000);
+            }
+        }
+
+        // Vorheriges Bild
+        function previousImage() {
+            if (images.length === 0) return;
+
+            currentIndex = currentIndex - 1;
+            if (currentIndex < 0) {
+                currentIndex = images.length - 1;
+            }
+            showCurrentImage();
+        }
+
+        // Pause/Play umschalten
+        function togglePause() {
+            isPaused = !isPaused;
+
+            if (isPaused) {
+                if (slideInterval) {
+                    clearInterval(slideInterval);
+                    slideInterval = null;
+                }
+                pauseBtnElement.innerHTML = '▶️ Play';
+                // Controls dauerhaft anzeigen wenn pausiert
+                controlsElement.classList.add('show');
+                infoElement.classList.add('show');
+            } else {
+                startSlideshow();
+                pauseBtnElement.innerHTML = '⏸️ Pause';
+                showControlsTemporary();
+            }
+        }
+
+        // Info ein/ausblenden
+        function toggleInfo() {
+            infoVisible = !infoVisible;
+
+            if (infoVisible) {
+                infoElement.classList.add('show');
+                document.getElementById('infoBtn').innerHTML = '🙈 Info aus';
+            } else {
+                infoElement.classList.remove('show');
+                document.getElementById('infoBtn').innerHTML = 'ℹ️ Info an';
+            }
+        }
+
+        // Loading anzeigen
+        function showLoading(message = 'Lädt...') {
+            loadingElement.innerHTML = message + '<span class="spinner"></span>';
+            loadingElement.style.display = 'block';
+            errorElement.style.display = 'none';
+            imageElement.style.display = 'none';
+        }
+
+        // Loading verstecken
+        function hideLoading() {
+            loadingElement.style.display = 'none';
+        }
+
+        // Fehler anzeigen
+        function showError(message) {
+            errorElement.innerHTML = message;
+            errorElement.style.display = 'block';
+            loadingElement.style.display = 'none';
+            imageElement.style.display = 'none';
+        }
+
+        // Tastatur-Events (für Entwicklung/Debug)
+        function handleKeyPress(event) {
+            switch(event.code) {
+                case 'Space':
+                case 'KeyP':
+                    event.preventDefault();
+                    togglePause();
+                    break;
+                case 'ArrowRight':
+                case 'KeyN':
+                    event.preventDefault();
+                    nextImage();
+                    break;
+                case 'ArrowLeft':
+                case 'KeyB':
+                    event.preventDefault();
+                    previousImage();
+                    break;
+                case 'KeyI':
+                    event.preventDefault();
+                    toggleInfo();
+                    break;
+                case 'KeyR':
+                    event.preventDefault();
+                    loadImages();
+                    break;
+                case 'Escape':
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen();
+                    }
+                    break;
+            }
+
+            showControlsTemporary();
+        }
+
+        // Bilder alle 15 Minuten neu laden für neue Uploads
+        setInterval(() => {
+            if (!isPaused) {
+                loadImages();
+            }
+        }, 15 * 60 * 1000);
+
+        // Error-Handler für unbehandelte Fehler
+        window.addEventListener('error', (event) => {
+            console.error('JavaScript Fehler:', event.error);
+            showError('Unerwarteter Fehler aufgetreten.<br>Seite wird neu geladen...');
+            setTimeout(() => window.location.reload(), 5000);
+        });
+
+        // Visibility-Change: Slideshow pausieren wenn Tablet nicht sichtbar
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden' && !isPaused) {
+                // Pausieren aber Status nicht ändern
+                if (slideInterval) {
+                    clearInterval(slideInterval);
+                    slideInterval = null;
+                }
+            } else if (document.visibilityState === 'visible' && !isPaused) {
+                // Wieder starten
+                startSlideshow();
+            }
+        });
+
+        // Bei Online/Offline Events reagieren
+        window.addEventListener('online', () => {
+            console.log('Verbindung wiederhergestellt');
+            setTimeout(loadImages, 1000);
+        });
+
+        window.addEventListener('offline', () => {
+            console.log('Verbindung verloren');
+            showError('Keine Internetverbindung.<br>Warte auf Wiederherstellung...');
+        });
+
+        // Starten
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
