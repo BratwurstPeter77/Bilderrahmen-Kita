@@ -14,7 +14,7 @@ curl -sSL https://raw.githubusercontent.com/BratwurstPeter77/Bilderrahmen-Kita/m
 
 ## 🎯 Über das Projekt
 
-Der **Bilderrahmen-Kita** ist ein speziell für Kindergärten entwickeltes System, das automatisch Fotos von verschiedenen Gruppen (Käfer, Bienen, Schmetterlinge, etc.) sammelt und als Slideshow anzeigt. Perfekt geeignet für Eingangsbereiche, Gruppenräume oder den Elternbereich.
+Der **Bilderrahmen-Kita** ist ein speziell für Kindergärten entwickeltes System, das automatisch Fotos von verschiedenen Gruppen sammelt und als Slideshow auf Tablets anzeigt. Die Fotos werden automatisch nach Monaten sortiert für einfache Verwaltung.
 
 **Entwickelt für:**
 - 🏫 Kindergärten und Kitas
@@ -28,41 +28,41 @@ Der **Bilderrahmen-Kita** ist ein speziell für Kindergärten entwickeltes Syste
 ### 📱 **Automatische Foto-Synchronisation**
 - Upload von Erzieher-Handys via WLAN
 - Verschiedene Android-Apps unterstützt
-- Automatische Sortierung nach Gruppen
+- Automatische Sortierung nach Gruppen und Monaten
+
+### 📅 **Monatsweise Organisation**
+- Fotos werden automatisch nach Jahr/Monat sortiert
+- Einfaches Löschen ganzer Monate
+- Struktur: `Gruppenname/2025/01/`, `Gruppenname/2025/02/`, etc.
 
 ### 🎨 **Flexible Gruppenverwaltung**
 - 1-10 individuelle Gruppen (Käfer, Bienen, Schmetterlinge, etc.)
 - Benutzerdefinierte Gruppennamen ohne Umlaute
 - Separate Slideshows für jede Gruppe
 
-### 🌐 **Web-Verwaltung**
-- Moderne Browser-Oberfläche für Erzieher
-- Bildvorschauen und Statistiken
-- Einfache Verwaltung ohne technische Kenntnisse
-
-### 🖥️ **Professionelle Anzeige**
+### 📱 **Tablet-optimiert**
+- Responsive Design für 5 Tablets gleichzeitig
 - Vollbild-Slideshows mit sanften Übergängen
 - Apple-Style Design
 - Anpassbare Anzeigedauer pro Bild
-- Automatischer Tag/Nacht-Modus
+
+### 🌐 **Einfache Verwaltung**
+- Web-Interface unter `bilderrahmen.local`
+- Bildvorschauen nach Monaten
+- Einfache Verwaltung ohne technische Kenntnisse
 
 ### 💾 **Windows-Integration**
 - Netzlaufwerke für einfache Bilderverwaltung
 - Drag & Drop von Fotos
 - Zugriff vom Büro-PC der Leitung
 
-### 🔄 **Wartungsfrei**
-- Automatischer Start beim Einschalten
-- Selbstheilende Updates
-- Robust gegen Stromausfälle
-
 ## 📋 Voraussetzungen
 
 ### Hardware
 - **Raspberry Pi**: 3B+ oder neuer (empfohlen: Pi 4 mit 4GB RAM)
-- **Display**: HDMI-Monitor, TV oder Touchscreen
+- **Tablets**: 5 Android/iOS Tablets für Slideshow-Anzeige
 - **Netzwerk**: WLAN oder Ethernet im Kita-Netzwerk
-- **SD-Karte**: Mindestens 16GB (Class 10)
+- **SD-Karte**: Mindestens 32GB (Class 10)
 
 ### Software
 - **Raspberry Pi OS**: Bookworm oder neuer
@@ -85,11 +85,11 @@ curl -sSL https://raw.githubusercontent.com/BratwurstPeter77/Bilderrahmen-Kita/m
 Das Installationsscript führt Sie durch:
 
 1. **📦 System-Setup**: Alle benötigten Programme werden installiert
-2. **👥 Gruppen konfigurieren**: Eingabe der Kita-Gruppennamen (z.B. "käfer", "bienen", "schmetterlinge")
-3. **📁 Ordner erstellen**: Automatische Struktur für alle Gruppen
-4. **🌐 Webserver einrichten**: Management-Interface für Erzieher
-5. **💾 Netzwerkfreigaben**: Windows-Zugriff vom Büro-PC
-6. **🚀 Autostart**: Slideshow startet automatisch
+2. **👤 Benutzer erstellen**: Eingabe von Benutzername und Passwort für Netzwerkzugriff
+3. **👥 Gruppen konfigurieren**: Eingabe der Kita-Gruppennamen (z.B. "käfer", "bienen", "schmetterlinge")
+4. **📁 Ordner erstellen**: Automatische Struktur für alle Gruppen mit Monats-Ordnern
+5. **🌐 Webserver einrichten**: Management-Interface unter `bilderrahmen.local`
+6. **💾 Netzwerkfreigaben**: Windows-Zugriff vom Büro-PC
 
 ### Manuelle Installation
 
@@ -103,20 +103,65 @@ käfer, bienen, schmetterlinge, marienkäfer, raupen,
 frösche, mäuse, bären, löwen, elefanten, hasen, igel
 ```
 
+### Ordnerstruktur (automatisch erstellt)
+```
+/Fotos/
+├── käfer/
+│   ├── 2025/
+│   │   ├── 01/         → Januar 2025
+│   │   ├── 02/         → Februar 2025
+│   │   └── 03/         → März 2025
+│   └── 2024/
+│       └── 12/         → Dezember 2024
+├── bienen/
+│   └── 2025/
+│       └── 01/
+└── frösche/
+    └── 2025/
+        └── 01/
+```
+
 ### Foto-Workflow für Erzieher
 
 1. **📱 Fotos aufnehmen** mit dem Handy während Aktivitäten
 2. **🔄 Automatischer Upload** wenn im Kita-WLAN
-3. **🖼️ Sofortige Anzeige** auf dem Bilderrahmen
-4. **👪 Eltern sehen** die Fotos beim Abholen
+3. **📅 Automatische Sortierung** nach aktueller Jahr/Monat
+4. **📱 Sofortige Anzeige** auf allen 5 Tablets
+5. **👪 Eltern sehen** die Fotos beim Abholen
 
-### Datenschutz (DSGVO)
+### Monats-Management
 
-- ✅ **Lokale Speicherung**: Alle Fotos bleiben in der Kita
-- ✅ **Keine Cloud**: Kein Upload zu externen Diensten
-- ✅ **Zugriffskontrolle**: Nur autorisierte Geräte können uploaden
-- ✅ **Löschfunktion**: Einfache Entfernung von Fotos
-- ✅ **Einverständnis**: System unterstützt Foto-Freigaben der Eltern
+**Fotos löschen:**
+- Ganzer Monat: Ordner `käfer/2024/12/` löschen
+- Einzelne Fotos: In entsprechendem Monats-Ordner löschen
+
+**Archivierung:**
+- Alte Monate auf USB-Stick sichern
+- Dann vom Raspberry Pi löschen
+
+## 📱 Tablet-Setup
+
+### Slideshow-URLs für 5 Tablets:
+
+```
+Tablet 1 (Käfer):     http://bilderrahmen.local/Fotos/käfer
+Tablet 2 (Bienen):    http://bilderrahmen.local/Fotos/bienen
+Tablet 3 (Frösche):   http://bilderrahmen.local/Fotos/frösche
+Tablet 4 (Mäuse):     http://bilderrahmen.local/Fotos/mäuse
+Tablet 5 (Bären):     http://bilderrahmen.local/Fotos/bären
+```
+
+### Tablet-Konfiguration:
+1. **Browser öffnen** (Chrome, Firefox, Safari)
+2. **URL eingeben**: `http://bilderrahmen.local/Fotos/GRUPPENNAME`
+3. **Vollbild aktivieren** (F11 oder Browser-Menü)
+4. **Tablet befestigen** im Gruppenraum/Eingangsbereich
+
+### Slideshow-Parameter:
+- `?delay=5000` - Anzeigedauer pro Bild (5 Sekunden)
+- `&shuffle=true` - Zufällige Reihenfolge
+- `&month=2025-01` - Nur Januar 2025 anzeigen
+- `&autostart=true` - Automatischer Start
 
 ## 📱 Android-Apps für Erzieher
 
@@ -138,63 +183,29 @@ frösche, mäuse, bären, löwen, elefanten, hasen, igel
 
 Nach der Installation verfügbar unter:
 ```
-http://RASPBERRY-IP/slideshows/scripts/verwaltung.html
+http://bilderrahmen.local
 ```
 
 ### Features für Erzieher:
-- 📊 **Dashboard** mit Foto-Statistiken pro Gruppe
-- 🖼️ **Bildvorschau** der letzten Uploads
-- ▶️ **Slideshow-Start** für jede Gruppe einzeln
-- 🗑️ **Foto-Verwaltung** (Löschen, Sortieren)
-- ⚙️ **Einstellungen** (Anzeigedauer, Reihenfolge)
+- 📁 **Monats-Übersicht** aller Gruppen
+- 🖼️ **Bildvorschau** nach Monaten sortiert
+- ▶️ **Slideshow-Links** für jede Gruppe
+- 🗑️ **Monats-Verwaltung** (Ganze Monate löschen)
+- 📊 **Speicherplatz-Übersicht**
 
 ## 💻 Zugriff vom Büro-PC (Windows)
 
 ### Netzlaufwerk einrichten:
 1. **Windows Explorer** öffnen (Windows + E)
-2. **Adresse eingeben**: `\\RASPBERRY-IP\GRUPPENNAME`
-3. **Anmelden**: Benutzername `pi` + Passwort
+2. **Adresse eingeben**: `\\bilderrahmen.local\Fotos`
+3. **Anmelden**: Mit erstelltem Benutzername + Passwort
 4. **Fotos verwalten**: Drag & Drop wie bei normalem Ordner
 
 ### Beispiel-Pfade:
 ```
-\\192.168.1.100\käfer      → Käfer-Gruppe
-\\192.168.1.100\bienen     → Bienen-Gruppe  
-\\192.168.1.100\frösche    → Frösche-Gruppe
-```
-
-## 🔧 Konfiguration
-
-### Mehrere Bildschirme
-```bash
-# Verschiedene Gruppen auf verschiedenen Displays
-nano ~/.config/lxsession/LXDE-pi/autostart
-
-# Käfer-Gruppe auf Display 1:
-slideshow.html?folder=käfer&delay=5000
-
-# Bienen-Gruppe auf Display 2:  
-slideshow.html?folder=bienen&delay=3000
-```
-
-### Slideshow-Parameter:
-- `?folder=käfer` - Spezifische Gruppe anzeigen
-- `&delay=5000` - Anzeigedauer pro Bild (5 Sekunden)
-- `&shuffle=true` - Zufällige Reihenfolge
-- `&controls=hide` - Bedienelemente ausblenden
-
-## 🔄 Updates & Wartung
-
-### Automatisches Update:
-```bash
-curl -sSL https://raw.githubusercontent.com/BratwurstPeter77/Bilderrahmen-Kita/main/scripts/update.sh | bash
-```
-
-### Wöchentliche Updates (empfohlen):
-```bash
-crontab -e
-# Hinzufügen:
-0 3 * * 0 curl -sSL https://raw.githubusercontent.com/BratwurstPeter77/Bilderrahmen-Kita/main/scripts/update.sh | bash
+\\bilderrahmen.local\Fotos\käfer\2025\01\     → Käfer Januar 2025
+\\bilderrahmen.local\Fotos\bienen\2025\01\    → Bienen Januar 2025  
+\\bilderrahmen.local\Fotos\frösche\2025\01\   → Frösche Januar 2025
 ```
 
 ## 🛠️ Fehlerbehebung
@@ -202,47 +213,51 @@ crontab -e
 ### Häufige Probleme:
 
 **"Keine Bilder gefunden"**
-- Prüfen: Sind Fotos im richtigen Ordner?
+- Prüfen: Sind Fotos im richtigen Monats-Ordner?
 - Prüfen: Haben Dateien die richtige Endung? (.jpg, .png)
-- Lösung: Web-Verwaltung öffnen und Ordner-Status prüfen
+- Lösung: Web-Verwaltung unter `bilderrahmen.local` öffnen
 
-**"Android kann nicht verbinden"**  
-- Prüfen: Ist das Handy im gleichen WLAN?
-- Prüfen: Ist die Raspberry Pi IP-Adresse korrekt?
+**"bilderrahmen.local nicht erreichbar"**  
+- Prüfen: Ist das Gerät im gleichen WLAN?
+- Prüfen: IP-Adresse verwenden: `http://192.168.1.XXX`
+- Lösung: Router neu starten oder mDNS aktivieren
+
+**"Tablet zeigt alte Fotos"**
+- Browser-Cache leeren (Strg+F5)
+- Tablet neu starten
+- Slideshow-URL neu laden
+
+**"Android kann nicht uploaden"**
+- Prüfen: Richtiger Benutzername/Passwort?
+- Prüfen: WLAN-Verbindung stabil?
 - Lösung: Samba-Dienst neu starten: `sudo systemctl restart smbd`
 
-**"Slideshow startet nicht"**
-- Prüfen: Monitor angeschlossen und eingeschaltet?
-- Prüfen: Raspberry Pi vollständig gebootet? (2-3 Minuten warten)
-- Lösung: Neustart: `sudo reboot`
+## 📅 Monats-Verwaltung
 
-### Support-Kontakt:
-Bei technischen Problemen bitte ein [Issue erstellen](https://github.com/BratwurstPeter77/Bilderrahmen-Kita/issues) mit:
-- Raspberry Pi Modell
-- Fehlermeldung (Screenshot)
-- Verwendete Gruppennamen
-- Android-App Version
-
-## 🤝 Beitragen
-
-Dieses Projekt lebt von der Community! Beiträge sind herzlich willkommen:
-
-### Wie Sie helfen können:
-- 🐛 **Bugs melden**: Issues mit detaillierter Beschreibung
-- 💡 **Features vorschlagen**: Neue Ideen für Kita-Bedürfnisse  
-- 📖 **Dokumentation**: Verbesserungen und Übersetzungen
-- 💻 **Code**: Pull Requests mit neuen Features
-
-### Entwickler-Setup:
-```bash
-git clone https://github.com/BratwurstPeter77/Bilderrahmen-Kita.git
-cd Bilderrahmen-Kita
-# Eigene Änderungen vornehmen
-git checkout -b feature/neue-funktion
-git commit -m "Neue Funktion hinzugefügt"
-git push origin feature/neue-funktion
-# Pull Request erstellen
+### Automatische Sortierung
+Neue Fotos werden automatisch in den aktuellen Monats-Ordner sortiert:
 ```
+Upload heute → käfer/2025/10/   (Oktober 2025)
+Upload nächsten Monat → käfer/2025/11/   (November 2025)
+```
+
+### Ganze Monate löschen
+```bash
+# Über Web-Interface (empfohlen)
+http://bilderrahmen.local → Monats-Verwaltung
+
+# Über Windows
+\\bilderrahmen.local\Fotos\käfer\2024\12\ → Ordner löschen
+
+# Über SSH (für Experten)
+rm -rf /home/pi/Fotos/käfer/2024/12/
+```
+
+### Speicherplatz überwachen
+Die Web-Verwaltung zeigt:
+- Fotos pro Monat
+- Speicherverbrauch pro Gruppe  
+- Empfehlungen für Archivierung
 
 ## 📄 Lizenz
 
@@ -253,20 +268,6 @@ Dieses Projekt steht unter der **MIT-Lizenz** - siehe [LICENSE](LICENSE) für De
 - ✅ Änderungen und Anpassungen erlaubt
 - ✅ Weitergabe an andere Kitas erlaubt
 - ✅ Keine Gewährleistung oder Haftung
-
-## 🙏 Danksagungen
-
-- **Raspberry Pi Foundation** für die kostengünstige Hardware
-- **SMBSync2 Entwickler** für die zuverlässige Android-App
-- **Kita-Erzieher** für wertvolles Feedback und Testen
-- **Open Source Community** für Inspiration und Code-Beiträge
-
-## 📞 Kontakt & Community
-
-- 🐛 **Issues**: [GitHub Issues](https://github.com/BratwurstPeter77/Bilderrahmen-Kita/issues)
-- 💬 **Diskussionen**: [GitHub Discussions](https://github.com/BratwurstPeter77/Bilderrahmen-Kita/discussions)
-- 📧 **E-Mail**: [Deine E-Mail einfügen]
-- 🌐 **Website**: [Falls vorhanden]
 
 ---
 
