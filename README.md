@@ -34,7 +34,7 @@ Der **Bilderrahmen-Kita** ist ein speziell für Kindergärten entwickeltes Syste
 
 ### 📱 **Automatische Foto-Synchronisation**
 - Upload von Erzieher-Handys via WLAN
-- Verschiedene Android-Apps unterstützt (SMBSync2, PhotoSync)
+- Verschiedene Apps unterstützt (SMBSync2, PhotoSync)
 - Automatische Sortierung nach Gruppen und Monaten
 
 ### 📅 **Monatsweise Organisation**
