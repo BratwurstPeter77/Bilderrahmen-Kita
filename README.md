@@ -334,27 +334,8 @@ Dieses Projekt steht unter der **MIT-Lizenz** - siehe [LICENSE](LICENSE) für De
 - ✅ **Änderungen erlaubt** für eigene Bedürfnisse
 - ✅ **Weitergabe** an andere Kitas möglich
 - ✅ **Keine Lizenzgebühren** oder versteckte Kosten
-- ⚠️ **Keine Gewährleistung** (aber Community-Support)
+- ⚠️ **Keine Gewährleistung** 
 
 ---
-
-**Entwickelt mit ❤️ für Kindergärten und die Freude am Teilen schöner Momente**
-
-*"Jedes Foto erzählt eine Geschichte - wir helfen dabei, sie zu teilen."*
-
-## 📞 Support & Community
-
-- 🐛 **Probleme melden**: [GitHub Issues](https://github.com/BratwurstPeter77/Bilderrahmen-Kita/issues)
-- 💬 **Diskussionen**: [GitHub Discussions](https://github.com/BratwurstPeter77/Bilderrahmen-Kita/discussions)
-- 📖 **Wiki**: [Erweiterte Dokumentation](https://github.com/BratwurstPeter77/Bilderrahmen-Kita/wiki)
-
-Bei Problemen bitte diese Informationen angeben:
-- Raspberry Pi Modell und RAM
-- USB-Festplatten-Typ (HDD/SSD)
-- Fehlermeldung (Screenshot)
-- Ausgabe von `/home/pi/check_backup.sh`
-
-
-
 ### Automatische Installation (empfohlen)
 
