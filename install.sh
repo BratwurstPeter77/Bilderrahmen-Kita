@@ -526,7 +526,7 @@ EOF
     ln -sf /mnt/kita-fotos $HOME/Fotos
     
     # Berechtigungen setzen
-    sudo chown -R pi:pi /mnt/kita-fotos
+    sudo chown -R $USER:$USER /mnt/kita-fotos
     chmod -R 755 /mnt/kita-fotos
     
     log_success "Ordnerstruktur für alle ${#GROUP_NAMES[@]} Gruppen erstellt"
@@ -852,7 +852,7 @@ EOF
 # Sicherheit konfigurieren
 setup_security() {
     log_step "Sicherheit und Firewall konfigurieren"
-    
+
     # UFW Firewall aktivieren
     sudo ufw --force enable > /dev/null 2>&1
     sudo ufw default deny incoming > /dev/null 2>&1
@@ -863,8 +863,14 @@ setup_security() {
     sudo ufw allow from 192.168.0.0/16 to any port 445 > /dev/null 2>&1   # SMB
     sudo ufw allow from 192.168.0.0/16 to any port 22 > /dev/null 2>&1    # SSH
     sudo ufw allow from 192.168.0.0/16 to any port 5353 > /dev/null 2>&1  # mDNS
-    sudo ufw allow from 172.16.0.0/12 to any port 80,445,22,5353 > /dev/null 2>&1
-    sudo ufw allow from 10.0.0.0/8 to any port 80,445,22,5353 > /dev/null 2>&1
+    sudo ufw allow from 172.16.0.0/12 to any port 80 > /dev/null 2>&1
+    sudo ufw allow from 172.16.0.0/12 to any port 445 > /dev/null 2>&1
+    sudo ufw allow from 172.16.0.0/12 to any port 22 > /dev/null 2>&1
+    sudo ufw allow from 172.16.0.0/12 to any port 5353 > /dev/null 2>&1
+    sudo ufw allow from 10.0.0.0/8 to any port 80 > /dev/null 2>&1
+    sudo ufw allow from 10.0.0.0/8 to any port 445 > /dev/null 2>&1
+    sudo ufw allow from 10.0.0.0/8 to any port 22 > /dev/null 2>&1
+    sudo ufw allow from 10.0.0.0/8 to any port 5353 > /dev/null 2>&1
     
     # Fail2Ban konfigurieren
     cat << 'EOF' | sudo tee /etc/fail2ban/jail.local > /dev/null
@@ -902,7 +908,7 @@ setup_daily_photo_sort() {
     log_step "Automatische Foto-Sortierung einrichten (täglich 20 Uhr)"
     
     # Foto-Sortier-Script erstellen
-    cat << 'SORT_EOF' > /home/pi/auto_sort_photos.sh
+    cat << 'SORT_EOF' > $HOME/auto_sort_photos.sh
 #!/bin/bash
 #
 # Tägliche Foto-Sortierung um 20 Uhr
@@ -1061,17 +1067,17 @@ fi
 main_daily_sort
 SORT_EOF
     
-    chmod +x /home/pi/auto_sort_photos.sh
+    chmod +x $HOME/auto_sort_photos.sh
     
     # Täglicher Cronjob um 20 Uhr
-    (crontab -l 2>/dev/null; echo "0 20 * * * /home/pi/auto_sort_photos.sh") | crontab -
+    (crontab -l 2>/dev/null; echo "0 20 * * * $HOME/auto_sort_photos.sh") | crontab -
     
     # Test-Script für manuelle Ausführung
     cat << 'TEST_EOF' > /home/pi/test_photo_sort.sh
 #!/bin/bash
 echo "=== FOTO-SORTIERUNG TEST ==="
 echo "Führe Sortierung manuell aus..."
-/home/pi/auto_sort_photos.sh
+$HOME/auto_sort_photos.sh
 echo ""
 echo "Letzte Log-Einträge:"
 tail -10 /var/log/photo-sort.log 2>/dev/null || echo "Noch keine Logs vorhanden"
