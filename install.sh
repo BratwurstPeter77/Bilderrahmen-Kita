@@ -765,7 +765,8 @@ setup_webserver() {
     
     # PHP-FPM für Lighttpd aktivieren
     sudo lighttpd-enable-mod fastcgi > /dev/null 2>&1
-    sudo lighttpd-enable-mod fastcgi-php > /dev/null 2>&1
+    sudo lighttpd-disable-mod fastcgi-php 2>/dev/null || true
+    sudo lighttpd-enable-mod fastcgi-php-fpm > /dev/null 2>&1
     
     # Symlink zu USB-Fotos erstellen
     sudo ln -sf /mnt/kita-fotos /var/www/html/Fotos
