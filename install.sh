@@ -1126,7 +1126,7 @@ cp -r /var/www/html "$BACKUP_DIR/scripts/" 2>/dev/null || true
 
 echo "Sichere Benutzer-Daten..."
 # Home-Verzeichnis ohne Fotos
-rsync -av --exclude="Fotos*" --exclude="*.jpg" --exclude="*.png" --exclude="*.gif" /home/pi/ "$BACKUP_DIR/home-backup/" 2>/dev/null || true
+rsync -av --exclude="Fotos*" --exclude="*.jpg" --exclude="*.png" --exclude="*.gif" $HOME/ "$BACKUP_DIR/home-backup/" 2>/dev/null || true
 
 echo "Erstelle System-Informationen..."
 # System-Status
