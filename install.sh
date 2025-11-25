@@ -1537,7 +1537,7 @@ finish_installation() {
     echo "   Status prüfen: \$HOME/check_system_status.sh"
     echo "   Backup prüfen: \$HOME/check_backup.sh"
     echo "   Sortierung testen: \$HOME/test_photo_sort.sh"
-    echo "   System-Backup: \\$HOME/create_system_backup.sh"
+    echo "   System-Backup: \$HOME/create_system_backup.sh"
     echo
     echo "📱 **Android-Apps herunterladen:**"
     echo "   SMBSync2: https://play.google.com/store/apps/details?id=com.sentaroh.android.SMBSync2"
