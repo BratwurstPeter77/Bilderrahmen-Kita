@@ -176,10 +176,10 @@ EOF
     # Dateisystem erstellen
     log_info "Erstelle Dateisystem..."
     sudo mkfs.ext4 "${USB_DEVICE}1" -L "KitaFotos" -F > /dev/null 2>&1
-    
+
     # UUID ermitteln
     sleep 1
-    local uuid=$(sudo blkid "${USB_DEVICE}1" | grep -o 'UUID="[^"]*"' | cut -d'"' -f2)
+    local uuid=$(sudo blkid -s UUID -o value "${USB_DEVICE}1" | head -1)
     
     if [[ -z "$uuid" ]]; then
         log_error "Konnte UUID der Festplatte nicht ermitteln"
