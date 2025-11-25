@@ -1084,10 +1084,10 @@ echo "Letzte Log-Einträge:"
 tail -10 /var/log/photo-sort.log 2>/dev/null || echo "Noch keine Logs vorhanden"
 TEST_EOF
     
-    chmod +x /home/pi/test_photo_sort.sh
+    chmod +x $HOME/test_photo_sort.sh
     
     log_success "Automatische Foto-Sortierung aktiviert (täglich 20:00 Uhr)"
-    log_info "Manueller Test: /home/pi/test_photo_sort.sh"
+    log_info "Manueller Test: \$HOME/test_photo_sort.sh"
     echo
 }
 
@@ -1534,10 +1534,10 @@ finish_installation() {
     echo "   5. 🌐 Web-Verwaltung testen: http://bilderrahmen.local"
     echo
     echo "🔧 **System-Verwaltung:**"
-    echo "   Status prüfen: /home/pi/check_system_status.sh"
-    echo "   Backup prüfen: /home/pi/check_backup.sh"
-    echo "   Sortierung testen: /home/pi/test_photo_sort.sh"
-    echo "   System-Backup: /home/pi/create_system_backup.sh"
+    echo "   Status prüfen: \$HOME/check_system_status.sh"
+    echo "   Backup prüfen: \$HOME/check_backup.sh"
+    echo "   Sortierung testen: \$HOME/test_photo_sort.sh"
+    echo "   System-Backup: \$HOME/test_photo_sort.sh"
     echo
     echo "📱 **Android-Apps herunterladen:**"
     echo "   SMBSync2: https://play.google.com/store/apps/details?id=com.sentaroh.android.SMBSync2"
