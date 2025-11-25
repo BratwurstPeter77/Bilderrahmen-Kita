@@ -63,8 +63,8 @@ function scanImagesRecursive($dir, $relativePath = '') {
     if ($files === false) return;
 
     foreach ($files as $file) {
-        if ($file === '.' || $file === '..' || $file === 'README.txt') continue;
-
+            // macOS Metadaten-Dateien (._*) und System-Dateien überspringen
+            if ($file === '.' || $file === '..' || $file === 'README.txt' || strpos($file, '._') === 0) continue;
         $fullPath = $dir . '/' . $file;
         $relativeFile = $relativePath ? $relativePath . '/' . $file : $file;
 
