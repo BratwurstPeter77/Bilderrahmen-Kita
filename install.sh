@@ -104,6 +104,71 @@ check_system() {
     echo
 }
 
+# Benutzer-Anmeldedaten erstellen
+create_user_credentials() {
+    log_header "👤 BENUTZER-ANMELDEDATEN ERSTELLEN"
+    echo
+    echo "Erstelle sichere Anmeldedaten für:"
+    echo "  📱 Android-App Zugriff (SMBSync2)"
+    echo "  💻 Windows Netzlaufwerk"
+    echo "  🔐 Samba-Server Authentifizierung"
+    echo
+    
+    while true; do
+        read -p "👤 Benutzername eingeben (nur Buchstaben/Zahlen): " username_input
+        
+        if [[ -z "$username_input" ]]; then
+            log_error "Benutzername darf nicht leer sein."
+            continue
+        fi
+        
+        KITA_USERNAME=$(sanitize_input "$username_input")
+        
+        if [[ -z "$KITA_USERNAME" ]] || [[ ${#KITA_USERNAME} -lt 3 ]]; then
+            log_error "Benutzername muss mindestens 3 gültige Zeichen haben."
+            continue
+        fi
+        
+        if [[ "$username_input" != "$KITA_USERNAME" ]]; then
+            log_info "Eingabe: '$username_input' → Verwendet: '$KITA_USERNAME'"
+        fi
+        
+        log_success "Benutzername: '$KITA_USERNAME'"
+        break
+    done
+    
+    while true; do
+        echo
+        read -s -p "🔑 Passwort eingeben (mindestens 8 Zeichen): " password1
+        echo
+        
+        if [[ ${#password1} -lt 8 ]]; then
+            log_error "Passwort muss mindestens 8 Zeichen lang sein."
+            continue
+        fi
+        
+        read -s -p "🔑 Passwort wiederholen: " password2
+        echo
+        
+        if [[ "$password1" != "$password2" ]]; then
+            log_error "Passwörter stimmen nicht überein."
+            continue
+        fi
+        
+        KITA_PASSWORD="$password1"
+        log_success "Passwort erfolgreich gesetzt (${#KITA_PASSWORD} Zeichen)"
+        break
+    done
+    
+    echo
+    log_warning "WICHTIG: Diese Anmeldedaten für später notieren!"
+    echo "  👤 Benutzername: $KITA_USERNAME"
+    echo "  🔑 Passwort: $KITA_PASSWORD"
+    echo
+    read -p "📝 Daten sicher notiert? Weiter mit Enter..."
+}
+
+
 # USB-Festplatte erkennen und einrichten
 setup_usb_disk() {
     log_step "USB-Festplatte einrichten"
