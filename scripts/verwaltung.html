@@ -5,439 +5,175 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bilderrahmen Verwaltung</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            color: white;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            font-weight: 300;
-        }
-
-        .quick-links {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        }
-
-        .quick-links h3 {
-            margin-bottom: 20px;
-            color: #333;
-            font-size: 1.3rem;
-        }
-
-        .links-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-        }
-
-        .link-card {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            padding: 20px;
-            text-decoration: none;
-            color: #333;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-        }
-
-        .link-card:hover {
-            background: #e9ecef;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .link-icon {
-            font-size: 2rem;
-            width: 50px;
-            text-align: center;
-        }
-
-        .link-text h4 {
-            margin-bottom: 5px;
-            font-size: 1.1rem;
-        }
-
-        .link-text p {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .settings-panel {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-top: 15px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 12px;
-        }
-
-        .settings-panel label {
-            font-weight: 500;
-            color: #333;
-        }
-
-        .settings-panel select {
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 2px solid #e9ecef;
-            font-size: 1rem;
-            margin-left: 10px;
-            cursor: pointer;
-        }
-
-        .settings-panel select:hover {
-            border-color: #667eea;
-        }
-
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .checkbox-label input {
-            margin-right: 8px;
-            transform: scale(1.3);
-            cursor: pointer;
-        }
-
-        .folder-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .folder-card {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .folder-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-        }
-
-        .folder-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 48px rgba(0,0,0,0.15);
-        }
-
-        .folder-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .folder-name {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-transform: capitalize;
-        }
-
-        .folder-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-        }
-
-        .folder-badge {
-            background: #667eea;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-
-        .btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-align: center;
-            min-width: 120px;
-            justify-content: center;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-            background: #f8f9fa;
-            color: #333;
-            border: 2px solid #e9ecef;
-        }
-
-        .btn-secondary:hover {
-            background: #e9ecef;
-            transform: translateY(-2px);
-        }
-
-        .months-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .months-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .months-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 10px;
-        }
-
-        .month-item {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .month-item:hover {
-            background: #e9ecef;
-            transform: translateY(-1px);
-        }
-
-        .month-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-        }
-
-        .month-count {
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: white;
-            font-size: 1.2rem;
-        }
-
-        .loading::after {
-            content: '';
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .error {
-            background: rgba(255, 107, 107, 0.1);
-            border: 2px solid rgba(255, 107, 107, 0.3);
-            color: #ff6b6b;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .refresh-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-            transition: all 0.3s ease;
-            z-index: 100;
-        }
-
-        .refresh-btn:hover {
-            transform: scale(1.1) rotate(180deg);
-            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
-        }
-
-        @media (max-width: 768px) {
-            .container { padding: 10px; }
-            .header h1 { font-size: 2rem; }
-            .folder-grid { grid-template-columns: 1fr; }
-            .links-grid { grid-template-columns: 1fr; }
-            .button-group { flex-direction: column; }
-            .btn { min-width: 100%; }
-            .settings-panel { flex-direction: column; align-items: flex-start; }
-            .refresh-btn { bottom: 20px; right: 20px; width: 60px; height: 60px; }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 40px; color: white; }
+        .header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
+        .header p { font-size: 1.1rem; opacity: 0.9; }
+        .panel { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 25px; margin-bottom: 25px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .panel h3 { margin-bottom: 20px; color: #333; font-size: 1.3rem; }
+        .settings { display: flex; gap: 25px; align-items: center; flex-wrap: wrap; padding: 15px; background: #f8f9fa; border-radius: 12px; }
+        .settings label { font-weight: 500; color: #333; }
+        .settings select { padding: 10px 15px; border-radius: 8px; border: 2px solid #e9ecef; font-size: 1rem; }
+        .checkbox-label { display: flex; align-items: center; cursor: pointer; }
+        .checkbox-label input { margin-right: 8px; transform: scale(1.3); }
+        .links-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        .link-card { background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 12px; padding: 20px; color: #333; transition: all 0.3s ease; display: flex; align-items: center; gap: 15px; cursor: pointer; }
+        .link-card:hover { background: #e9ecef; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .link-icon { font-size: 2rem; width: 50px; text-align: center; }
+        .link-text h4 { margin-bottom: 5px; font-size: 1.1rem; }
+        .link-text p { font-size: 0.85rem; color: #666; }
+        .folder-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; }
+        .folder-card { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 25px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); position: relative; overflow: hidden; transition: all 0.3s ease; }
+        .folder-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #667eea, #764ba2); }
+        .folder-card:hover { transform: translateY(-5px); }
+        .folder-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .folder-name { font-size: 1.4rem; font-weight: 600; color: #333; display: flex; align-items: center; gap: 10px; text-transform: capitalize; }
+        .folder-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; }
+        .folder-badge { background: #667eea; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
+        .button-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { padding: 12px 20px; border: none; border-radius: 12px; cursor: pointer; font-size: 0.9rem; font-weight: 500; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px; min-width: 140px; justify-content: center; }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); }
+        .btn-secondary { background: #f8f9fa; color: #333; border: 2px solid #e9ecef; }
+        .btn-secondary:hover { background: #e9ecef; }
+        .loading { text-align: center; padding: 40px; color: white; font-size: 1.2rem; }
+        .error { background: rgba(255,107,107,0.1); border: 2px solid rgba(255,107,107,0.3); color: #ff6b6b; padding: 20px; border-radius: 12px; text-align: center; }
+        .refresh-btn { position: fixed; bottom: 30px; right: 30px; width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; font-size: 1.5rem; cursor: pointer; box-shadow: 0 8px 25px rgba(102,126,234,0.4); transition: all 0.3s ease; z-index: 100; }
+        .refresh-btn:hover { transform: scale(1.1) rotate(180deg); }
+        .saved { color: #28a745; font-size: 0.9rem; margin-left: 10px; }
+        @media (max-width: 768px) { .header h1 { font-size: 1.8rem; } .folder-grid, .links-grid { grid-template-columns: 1fr; } .button-group { flex-direction: column; } .btn { min-width: 100%; } .settings { flex-direction: column; align-items: stretch; } }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🖼️ Bilderrahmen Verwaltung</h1>
-            <p>Verwalte deine Kita-Fotos nach Gruppen und Monaten</p>
+            <p>Verwalte deine Kita-Fotos nach Gruppen</p>
         </div>
-
-        <!-- Einstellungen -->
-        <div class="quick-links">
-            <h3>⚙️ Slideshow-Einstellungen</h3>
-            <div class="settings-panel">
+        <div class="panel">
+            <h3>⚙️ Slideshow-Einstellungen <span class="saved" id="saved" style="display:none">✓ Gespeichert</span></h3>
+            <div class="settings">
                 <div>
-                    <label for="slideSpeed">🕐 Bildwechsel:</label>
-                    <select id="slideSpeed">
-                        <option value="3000">3 Sekunden (schnell)</option>
-                        <option value="5000" selected>5 Sekunden (normal)</option>
-                        <option value="8000">8 Sekunden (langsam)</option>
-                        <option value="10000">10 Sekunden</option>
-                        <option value="15000">15 Sekunden</option>
-                        <option value="20000">20 Sekunden</option>
-                        <option value="30000">30 Sekunden</option>
+                    <label for="speed">🕐 Bildwechsel:</label>
+                    <select id="speed" onchange="save()">
+                        <option value="3000">3 Sek (schnell)</option>
+                        <option value="5000">5 Sek (normal)</option>
+                        <option value="8000">8 Sek (langsam)</option>
+                        <option value="10000">10 Sek</option>
+                        <option value="15000">15 Sek</option>
+                        <option value="30000">30 Sek</option>
                     </select>
                 </div>
                 <label class="checkbox-label">
-                    <input type="checkbox" id="shuffleImages">
+                    <input type="checkbox" id="shuffle" onchange="save()">
                     🔀 Zufällige Reihenfolge
                 </label>
             </div>
         </div>
-
-        <!-- Tablet-Links -->
-        <div class="quick-links">
-            <h3>📱 Tablet-Links für Slideshows</h3>
-            <div class="links-grid" id="tabletLinks">
-                <p>Lade Gruppen...</p>
-            </div>
+        <div class="panel">
+            <h3>📱 Tablet-Links</h3>
+            <div class="links-grid" id="links"><p>Lade...</p></div>
         </div>
-
-        <!-- Gruppen-Karten -->
-        <div class="folder-grid" id="folderGrid">
-            <div class="loading">Lade Gruppen-Daten...</div>
-        </div>
+        <div class="folder-grid" id="grid"><div class="loading">Lade Gruppen...</div></div>
     </div>
+    <button class="refresh-btn" onclick="load()" title="Aktualisieren">↻</button>
+<script>
+var folders = [];
+var icons = {'kaefer':'🐛','bienen':'🐝','schmetterlinge':'🦋','froesche':'🐸','maeuse':'🐭','baeren':'🐻','spatzen':'🐦','luftpiraten':'🏴‍☠️','marienkaefer':'🐞','klapperstoerche':'🦩','hasen':'🐰','igel':'🦔','loewen':'🦁','elefanten':'🐘'};
 
-    <button class="refresh-btn" onclick="loadAllFolders()" title="Aktualisieren">↻</button>
+function icon(n) { return icons[n.toLowerCase()] || '📱'; }
 
-    <script>
-        // Wird während Installation automatisch ersetzt
-        var folders = ['kaefer', 'bienen', 'schmetterlinge', 'froesche', 'maeuse'];
-        var folderData = {};
-        var monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+function save() {
+    localStorage.setItem('kita_speed', document.getElementById('speed').value);
+    localStorage.setItem('kita_shuffle', document.getElementById('shuffle').checked);
+    var s = document.getElementById('saved');
+    s.style.display = 'inline';
+    setTimeout(function() { s.style.display = 'none'; }, 2000);
+}
 
-        var folderIcons = {
-            'kaefer': '🐛', 'bienen': '🐝', 'schmetterlinge': '🦋', 'froesche': '🐸',
-            'maeuse': '🐭', 'baeren': '🐻', 'loewen': '🦁', 'elefanten': '🐘',
-            'hasen': '🐰', 'igel': '🦔', 'marienkaefer': '🐞', 'spatzen': '🐦',
-            'luftpiraten': '🏴‍☠️', 'klapperstoerche': '🦩', 'default': '📱'
-        };
+function restore() {
+    var sp = localStorage.getItem('kita_speed');
+    if (sp) document.getElementById('speed').value = sp;
+    var sh = localStorage.getItem('kita_shuffle');
+    if (sh === 'true') document.getElementById('shuffle').checked = true;
+}
 
-        function getFolderIcon(folderName) {
-            var name = folderName.toLowerCase();
-            return folderIcons[name] || folderIcons.default;
-        }
+function url(f) {
+    var d = document.getElementById('speed').value;
+    var s = document.getElementById('shuffle').checked;
+    return '/scripts/slideshow.html?folder=' + encodeURIComponent(f) + '&delay=' + d + (s ? '&shuffle=true' : '');
+}
 
-        function getSlideShowUrl(folderName, month) {
-            var delay = document.getElementById('slideSpeed').value;
-            var shuffle = document.getElementById('shuffleImages').checked;
-            var url = '/scripts/slideshow.html?folder=' + encodeURIComponent(folderName) + '&delay=' + delay;
-            if (shuffle) {
-                url += '&shuffle=true';
+function open_slide(f) { window.open(url(f), '_blank'); }
+
+function open_win(f) {
+    var h = window.location.hostname || 'bilderrahmen.local';
+    var p = '\\\\' + h + '\\' + f;
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(p).then(function() {
+            alert('✅ Kopiert!\n\n' + p + '\n\n👉 Win+E, Strg+V');
+        }).catch(function() { prompt('Pfad:', p); });
+    } else {
+        prompt('Pfad:', p);
+    }
+}
+
+function links() {
+    var c = document.getElementById('links');
+    c.innerHTML = '';
+    if (!folders.length) { c.innerHTML = '<p>Keine Gruppen</p>'; return; }
+    folders.forEach(function(f, i) {
+        var d = document.createElement('div');
+        d.className = 'link-card';
+        d.onclick = function() { open_slide(f); };
+        d.innerHTML = '<div class="link-icon">' + icon(f) + '</div><div class="link-text"><h4>Tablet ' + (i + 1) + ': ' + f.charAt(0).toUpperCase() + f.slice(1) + '</h4><p>Klick zum Starten</p></div>';
+        c.appendChild(d);
+    });
+}
+
+function card(f, cnt) {
+    var g = document.getElementById('grid');
+    var c = document.createElement('div');
+    c.className = 'folder-card';
+    c.innerHTML = '<div class="folder-header"><div class="folder-name"><div class="folder-icon">' + icon(f) + '</div>' + f.charAt(0).toUpperCase() + f.slice(1) + '</div><div class="folder-badge">' + cnt + ' Bilder</div></div><div class="button-group"><button class="btn btn-primary" onclick="open_slide(\'' + f + '\')">▶️ Slideshow</button><button class="btn btn-secondary" onclick="open_win(\'' + f + '\')">📁 Windows</button></div>';
+    g.appendChild(c);
+}
+
+function load() {
+    var g = document.getElementById('grid');
+    g.innerHTML = '<div class="loading">Lade...</div>';
+    
+    fetch('/Fotos/').then(function(r) { return r.text(); }).then(function(html) {
+        var m = html.match(/href="([^"]+)\/"/g) || [];
+        folders = [];
+        m.forEach(function(x) {
+            var n = x.replace('href="', '').replace('/"', '').replace('"', '');
+            if (n && n !== '..' && n !== 'SYSTEM-BACKUP' && n !== 'lost+found' && !n.startsWith('.')) {
+                folders.push(n);
             }
-            if
+        });
+        if (!folders.length) throw new Error('Keine Ordner');
+        g.innerHTML = '';
+        links();
+        folders.forEach(function(f) {
+            fetch('/scripts/get_images.php?folder=' + encodeURIComponent(f) + '&month=all&t=' + Date.now())
+                .then(function(r) { return r.json(); })
+                .then(function(d) { card(f, (d && d.count) || 0); })
+                .catch(function() { card(f, 0); });
+        });
+    }).catch(function() {
+        g.innerHTML = '<div class="error">Fehler beim Laden. Prüfe /mnt/kita-fotos/</div>';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    restore();
+    load();
+});
+
+setInterval(load, 120000);
+</script>
+</body>
+</html>
