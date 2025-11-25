@@ -1,5 +1,163 @@
 #!/bin/bash
 #
+# Bilderrahmen-Kita - Installation mit Speicherort-Auswahl und SD-Karten-Schutz
+# Version 2.1 – 11/2025
+# Copyright (c) 2025 BratwurstPeter77, MIT License
+
+set -e
+
+# Farben für Output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+PURPLE='\033[0;35m'
+NC='\033[0m'
+
+SCRIPT_VERSION="2.1.0"
+declare -a GROUP_NAMES=()
+GROUP_COUNT=0
+KITA_USERNAME=""
+KITA_PASSWORD=""
+STORAGEPATH=""
+
+log_info(){ echo -e "${BLUE}[INFO]${NC} $1"; }
+log_success(){ echo -e "${GREEN}[OK]${NC} $1"; }
+log_warning(){ echo -e "${YELLOW}[WARNUNG]${NC} $1"; }
+log_error(){ echo -e "${RED}[FEHLER]${NC} $1"; }
+log_step(){ echo -e "${CYAN}==>${NC} $1"; }
+log_header(){ echo -e "${PURPLE}$1${NC}"; }
+
+show_banner() {
+    echo -e "${PURPLE}"
+    echo "================================================================"
+    echo "🖼️  BILDERRAHMEN-KITA - INSTALLATION v${SCRIPT_VERSION}"
+    echo "================================================================"
+    echo -e "${NC}"
+    echo "🎯 Digitaler Bilderrahmen für Kindergärten"
+    echo "📱 Optimiert für 5 Tablets / individuelle Gruppen"
+    echo "📁 Speicherziel: individuell wählbar (SSD empfohlen)"
+    echo
+}
+
+select_storage_path() {
+    echo
+    echo "Wo sollen Fotos, Logs und temporäre Daten gespeichert werden?"
+    echo " [1] SSD/USB-Festplatte (/mnt/kita-fotos) [empfohlen]"
+    echo " [2] SD-Karte (/home/pi/kita-fotos)"
+    echo " [3] Anderer Pfad (z.B. /data/kita)"
+    read -p "Deine Wahl (1-3): " opt
+    case "$opt" in
+        1) STORAGEPATH="/mnt/kita-fotos" ;;
+        2) STORAGEPATH="/home/pi/kita-fotos" ;;
+        3) read -p "Pfad eingeben (z.B. /data/kita): " STORAGEPATH ;;
+        *) echo "Ungültig!" ; exit 1 ;;
+    esac
+    echo -e "${GREEN}[OK]${NC} Speicher-Ort gesetzt: $STORAGEPATH"
+    sudo mkdir -p "$STORAGEPATH/logs"
+    sudo mkdir -p "$STORAGEPATH/tmp"
+}
+
+setup_sd_schonung() {
+    log_step "Aktiviere SD-Kartenschutz: Logs und Temp auf SSD/RAM"
+    sudo mkdir -p "$STORAGEPATH/logs"
+    sudo sed -i "s|accesslog.filename.*|accesslog.filename = \"$STORAGEPATH/logs/access.log\"|g" /etc/lighttpd/lighttpd.conf || true
+    sudo sed -i "s|server.errorlog.*|server.errorlog    = \"$STORAGEPATH/logs/error.log\"|g" /etc/lighttpd/lighttpd.conf || true
+    grep -q "/tmp tmpfs" /etc/fstab || echo "tmpfs /tmp tmpfs defaults,size=128m 0 0" | sudo tee -a /etc/fstab
+    grep -q "/var/tmp tmpfs" /etc/fstab || echo "tmpfs /var/tmp tmpfs defaults,size=32m 0 0" | sudo tee -a /etc/fstab
+    cat <<EOF | sudo tee /etc/logrotate.d/kita-fotos > /dev/null
+$STORAGEPATH/logs/*.log {
+    weekly
+    rotate 4
+    compress
+    delaycompress
+    missingok
+    notifempty
+}
+EOF
+    sudo dphys-swapfile swapoff || true
+    sudo systemctl disable dphys-swapfile || true
+    log_success "SD-Karten-Schonung aktiv! Logs & Temp werden auf $STORAGEPATH oder RAM ausgelagert."
+}
+
+check_system() {
+    log_step "Systemprüfung..."
+    if [[ $EUID -eq 0 ]]; then
+        log_error "Bitte NICHT als root ausführen!"
+        exit 1
+    fi
+    if ! command -v apt &>/dev/null; then
+        log_error "Nur auf Debian/Ubuntu/Raspberry Pi OS unterstützt!"
+        exit 1
+    fi
+    log_success "System-Check OK"
+}
+
+install_dependencies() {
+    log_step "Installiere System-Pakete (kann 10min dauern)..."
+    sudo apt update
+    sudo apt install -y git curl samba samba-common-bin lighttpd php-fpm php-cli \
+        avahi-daemon ufw fail2ban smartmontools htop tree rsync logrotate libimage-exiftool-perl
+    log_success "Alle Pakete installiert."
+}
+
+setup_samba() {
+    log_step "Erstelle Samba-Freigabe für $STORAGEPATH"
+    sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.backup.$(date +"%Y%m%d_%H%M")
+    {
+        echo "[Fotos]"
+        echo "    path = $STORAGEPATH"
+        echo "    writeable = yes"
+        echo "    browseable = yes"
+        echo "    public = no"
+        echo "    valid users = $USER"
+        echo "    force user = $USER"
+        echo "    directory mask = 0775"
+        echo "    create mask = 0664"
+    } | sudo tee -a /etc/samba/smb.conf >/dev/null
+    (echo "kita2025"; echo "kita2025") | sudo smbpasswd -s -a "$USER"
+    sudo systemctl restart smbd
+    log_success "Samba-Freigabe erstellt: \\\\$(hostname).local\\Fotos"
+}
+
+setup_web() {
+    log_step "Richte Webserver für HTTP-Slideshow ein"
+    sudo mkdir -p /var/www/html/scripts
+    sudo ln -sf "$STORAGEPATH" /var/www/html/Fotos
+    echo "<meta http-equiv='refresh' content='0; url=/Fotos/' />" | sudo tee /var/www/html/index.html >/dev/null
+    sudo systemctl enable lighttpd
+    sudo systemctl restart lighttpd
+    log_success "Webserver unter http://$(hostname -I | awk '{print $1}') erreichbar."
+}
+
+show_finish() {
+    echo
+    log_success "Bilderrahmen-Kita Server ist einsatzbereit!"
+    echo "Fotos & Logs: $STORAGEPATH"
+    echo "SMB-Freigabe: \\\\$(hostname).local\\Fotos"
+    echo "HTTP-Webserver: http://$(hostname -I | awk '{print $1}')"
+    echo "[INFO] Die SD-Karte wird geschont – alle Schreibzugriffe gehen auf dein Speicherziel!"
+}
+
+main() {
+    clear
+    show_banner
+    select_storage_path
+    check_system
+    install_dependencies
+    setup_samba
+    setup_web
+    setup_sd_schonung
+    show_finish
+}
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi
+
+#!/bin/bash
+#
 # Bilderrahmen-Kita - Installation mit USB-Festplatte und automatischer Foto-Sortierung
 # Copyright (c) 2025 BratwurstPeter77
 # Licensed under the MIT License
