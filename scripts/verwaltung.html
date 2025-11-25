@@ -617,25 +617,21 @@
 
             window.open(url, '_blank');
         }
-
-        // Windows-Ordner öffnen
+        // Windows-Ordner öffnen (verbessert)
         function openWindowsFolder(folderName) {
-            const hostname = window.location.hostname || 'bilderrahmen.local';
-            const sambaPath = `\\\\${hostname}\\Fotos\\${folderName}`;
-
-            const message = `Windows-Ordner öffnen:\n\n` +
-                `1. Windows Explorer öffnen (Windows + E)\n` +
-                `2. Folgende Adresse eingeben:\n` +
-                `   ${sambaPath}\n\n` +
-                `3. Mit Kita-Benutzerdaten anmelden\n\n` +
-                `Die Adresse wurde in die Zwischenablage kopiert.`;
-
-            // In Zwischenablage kopieren
-            navigator.clipboard.writeText(sambaPath).catch(() => {
-                console.log('Zwischenablage nicht verfügbar');
-            });
-
-            alert(message);
+            var hostname = window.location.hostname || 'bilderrahmen.local';
+            var sambaPath = '\\\\' + hostname + '\\' + folderName;
+            
+            // Zwischenablage-API mit Fallback
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(sambaPath).then(function() {
+                    alert('✅ Pfad kopiert!\n\n' + sambaPath + '\n\n👉 Windows Explorer öffnen (Win+E)\n👉 Strg+V in die Adressleiste einfügen\n👉 Mit Kita-Zugangsdaten anmelden');
+                }).catch(function() {
+                    prompt('📁 Kopiere diesen Pfad in den Windows Explorer:', sambaPath);
+                });
+            } else {
+                prompt('📁 Kopiere diesen Pfad in den Windows Explorer:', sambaPath);
+            }
         }
 
         // Event-Listener
