@@ -453,7 +453,10 @@
                         currentIndex = 0;
                     }
 
-                    startSlideshow();
+                    // ⭐ ÄNDERUNG 1: Nur starten wenn noch kein Interval läuft
+                    if (!slideInterval) {
+                        startSlideshow();
+                    }
                 } else {
                     const monthText = month === 'all' ? 'der Gruppe' : `für ${monthInfoElement.textContent}`;
                     showError(`Keine Bilder ${monthText} "${folderName}" gefunden.<br><br>
@@ -483,6 +486,12 @@
 
         // Slideshow starten
         function startSlideshow() {
+            // ⭐ ÄNDERUNG 2: Alten Interval stoppen
+            if (slideInterval) {
+                clearInterval(slideInterval);
+                slideInterval = null;
+            }
+
             if (images.length === 0 || !autostart) return;
 
             showCurrentImage();
