@@ -1074,7 +1074,7 @@ SORT_EOF
     (crontab -l 2>/dev/null; echo "0 20 * * * $HOME/auto_sort_photos.sh") | crontab -
     
     # Test-Script für manuelle Ausführung
-    cat << 'TEST_EOF' > /home/pi/test_photo_sort.sh
+    cat << 'TEST_EOF' > $HOME/test_photo_sort.sh
 #!/bin/bash
 echo "=== FOTO-SORTIERUNG TEST ==="
 echo "Führe Sortierung manuell aus..."
@@ -1099,7 +1099,7 @@ create_system_backup() {
     mkdir -p "$backup_dir"
     
     # Backup-Script erstellen
-    cat << 'BACKUP_EOF' > /home/pi/create_system_backup.sh
+    cat << 'BACKUP_EOF' > $HOME/create_system_backup.sh
 #!/bin/bash
 BACKUP_DIR="/mnt/kita-fotos/SYSTEM-BACKUP"
 DATE=$(date '+%Y-%m-%d_%H-%M-%S')
@@ -1292,11 +1292,11 @@ echo "Status: Erfolgreich"
 echo "[$(date)] System-Backup erstellt: $BACKUP_SIZE, $FILE_COUNT Dateien" >> /var/log/system-backup.log
 BACKUP_EOF
     
-    chmod +x /home/pi/create_system_backup.sh
+    chmod +x $HOME/create_system_backup.sh
     
     # Backup ausführen
     log_info "Erstelle initiales System-Backup..."
-    /home/pi/create_system_backup.sh > /dev/null 2>&1
+    $HOME/create_system_backup.sh > /dev/null 2>&1
     
     if [ -f "$backup_dir/BACKUP-INFO.txt" ]; then
         local backup_size=$(du -sh "$backup_dir" | cut -f1)
@@ -1313,7 +1313,7 @@ create_status_scripts() {
     log_step "Status-Check-Scripts erstellen"
     
     # Backup-Status-Script
-    cat << 'STATUS_EOF' > /home/pi/check_system_status.sh
+    cat << 'STATUS_EOF' > $HOME/check_system_status.sh
 #!/bin/bash
 echo "=== BILDERRAHMEN-KITA SYSTEM-STATUS ==="
 echo "Datum: $(date)"
@@ -1406,10 +1406,10 @@ echo ""
 echo "=== STATUS-CHECK BEENDET ==="
 STATUS_EOF
     
-    chmod +x /home/pi/check_system_status.sh
+    chmod +x $HOME/check_system_status.sh
     
     # Einfacher Backup-Check
-    cat << 'BACKUP_CHECK_EOF' > /home/pi/check_backup.sh
+    cat << 'BACKUP_CHECK_EOF' > $HOME/check_backup.sh
 #!/bin/bash
 echo "=== BACKUP-STATUS ==="
 if [ -d "/mnt/kita-fotos/SYSTEM-BACKUP" ]; then
@@ -1423,11 +1423,11 @@ else
 fi
 BACKUP_CHECK_EOF
     
-    chmod +x /home/pi/check_backup.sh
+    chmod +x $HOME/check_backup.sh
     
     log_success "Status-Check-Scripts erstellt:"
-    log_info "/home/pi/check_system_status.sh - Komplett-Status"
-    log_info "/home/pi/check_backup.sh - Backup-Status"
+    log_info "\$HOME/check_system_status.sh - Komplett-Status"
+    log_info "\$HOME/check_backup.sh - Backup-Status"
     echo
 }
 
