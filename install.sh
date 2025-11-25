@@ -144,10 +144,8 @@ setup_usb_disk() {
         read -p "Wirklich fortfahren? (JA/nein): " final_confirm
         
         case $final_confirm in
-            "JA")
-                break
-                ;;
-            *)
+            "JA") break ;;
+            *) 
                 log_info "Installation abgebrochen - keine Daten gelöscht"
                 exit 0
                 ;;
@@ -176,23 +174,28 @@ EOF
     # Dateisystem erstellen
     log_info "Erstelle Dateisystem..."
     sudo mkfs.ext4 "${USB_DEVICE}1" -L "KitaFotos" -F > /dev/null 2>&1
-
-    # UUID ermitteln
-    sleep 1
-    local uuid=$(sudo blkid -s UUID -o value "${USB_DEVICE}1" | head -1)
+    
+    # UUID ermitteln (REPARIERT - nur erste UUID, saubere Ausgabe)
+    sleep 2
+    local uuid=$(sudo blkid -s UUID -o value "${USB_DEVICE}1" 2>/dev/null | head -1 | tr -d '[:space:]')
     
     if [[ -z "$uuid" ]]; then
         log_error "Konnte UUID der Festplatte nicht ermitteln"
         exit 1
     fi
     
+    log_info "UUID erkannt: $uuid"
+    
     # Mount-Point erstellen
     sudo mkdir -p /mnt/kita-fotos
     
-    # In fstab eintragen
-    if ! grep -q "kita-fotos" /etc/fstab; then
-        echo "UUID=$uuid /mnt/kita-fotos ext4 defaults,noatime,nofail 0 2" | sudo tee -a /etc/fstab > /dev/null
-    fi
+    # REPARIERT: Alte kita-fotos Einträge aus fstab ENTFERNEN bevor neu hinzugefügt wird
+    sudo sed -i '/kita-fotos/d' /etc/fstab
+    
+    # Neuen sauberen Eintrag hinzufügen
+    echo "UUID=$uuid /mnt/kita-fotos ext4 defaults,noatime,nofail 0 2" | sudo tee -a /etc/fstab > /dev/null
+    
+    log_info "fstab aktualisiert"
     
     # Mounten
     sudo mount -a
@@ -205,86 +208,11 @@ EOF
         exit 1
     fi
     
-    # Berechtigungen setzen
-    sudo chown -R pi:pi /mnt/kita-fotos
+    # Berechtigungen setzen (REPARIERT: $USER statt hardcoded pi)
+    sudo chown -R $USER:$USER /mnt/kita-fotos
     chmod -R 755 /mnt/kita-fotos
     
     echo
-}
-
-# Eingabe sanitisieren
-sanitize_input() {
-    local input="$1"
-    local sanitized=$(echo "$input" | \
-        sed 's/[äÄ]/ae/g; s/[öÖ]/oe/g; s/[üÜ]/ue/g; s/[ß]/ss/g' | \
-        sed 's/[^a-zA-Z0-9]//g' | \
-        tr '[:upper:]' '[:lower:]')
-    echo "$sanitized"
-}
-
-# Benutzer-Anmeldedaten erstellen
-create_user_credentials() {
-    log_header "👤 BENUTZER-ANMELDEDATEN ERSTELLEN"
-    echo
-    echo "Erstelle sichere Anmeldedaten für:"
-    echo "  📱 Android-App Zugriff (SMBSync2)"
-    echo "  💻 Windows Netzlaufwerk"
-    echo "  🔐 Samba-Server Authentifizierung"
-    echo
-    
-    while true; do
-        read -p "👤 Benutzername eingeben (nur Buchstaben/Zahlen): " username_input
-        
-        if [[ -z "$username_input" ]]; then
-            log_error "Benutzername darf nicht leer sein."
-            continue
-        fi
-        
-        KITA_USERNAME=$(sanitize_input "$username_input")
-        
-        if [[ -z "$KITA_USERNAME" ]] || [[ ${#KITA_USERNAME} -lt 3 ]]; then
-            log_error "Benutzername muss mindestens 3 gültige Zeichen haben."
-            log_error "Erlaubt: a-z, A-Z, 0-9 (Umlaute werden konvertiert)"
-            continue
-        fi
-        
-        if [[ "$username_input" != "$KITA_USERNAME" ]]; then
-            log_info "Eingabe: '$username_input' → Verwendet: '$KITA_USERNAME'"
-        fi
-        
-        log_success "Benutzername: '$KITA_USERNAME'"
-        break
-    done
-    
-    while true; do
-        echo
-        read -s -p "🔑 Passwort eingeben (mindestens 8 Zeichen): " password1
-        echo
-        
-        if [[ ${#password1} -lt 8 ]]; then
-            log_error "Passwort muss mindestens 8 Zeichen lang sein."
-            continue
-        fi
-        
-        read -s -p "🔑 Passwort wiederholen: " password2
-        echo
-        
-        if [[ "$password1" != "$password2" ]]; then
-            log_error "Passwörter stimmen nicht überein."
-            continue
-        fi
-        
-        KITA_PASSWORD="$password1"
-        log_success "Passwort erfolgreich gesetzt (${#KITA_PASSWORD} Zeichen)"
-        break
-    done
-    
-    echo
-    log_warning "WICHTIG: Diese Anmeldedaten für später notieren!"
-    echo "   👤 Benutzername: $KITA_USERNAME"
-    echo "   🔑 Passwort: $KITA_PASSWORD"
-    echo
-    read -p "📝 Daten sicher notiert? Weiter mit Enter..."
 }
 
 # Gruppennamen konfigurieren
