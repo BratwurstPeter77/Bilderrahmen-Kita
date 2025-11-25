@@ -74,6 +74,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            cursor: pointer;
         }
 
         .link-card:hover {
@@ -96,6 +97,47 @@
         .link-text p {
             font-size: 0.9rem;
             color: #666;
+        }
+
+        .settings-panel {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .settings-panel label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .settings-panel select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            font-size: 1rem;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .settings-panel select:hover {
+            border-color: #667eea;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .checkbox-label input {
+            margin-right: 8px;
+            transform: scale(1.3);
+            cursor: pointer;
         }
 
         .folder-grid {
@@ -315,38 +357,15 @@
             box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            .folder-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .links-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-
-            .btn {
-                min-width: 100%;
-            }
-
-            .refresh-btn {
-                bottom: 20px;
-                right: 20px;
-                width: 60px;
-                height: 60px;
-            }
+            .container { padding: 10px; }
+            .header h1 { font-size: 2rem; }
+            .folder-grid { grid-template-columns: 1fr; }
+            .links-grid { grid-template-columns: 1fr; }
+            .button-group { flex-direction: column; }
+            .btn { min-width: 100%; }
+            .settings-panel { flex-direction: column; align-items: flex-start; }
+            .refresh-btn { bottom: 20px; right: 20px; width: 60px; height: 60px; }
         }
     </style>
 </head>
@@ -357,299 +376,68 @@
             <p>Verwalte deine Kita-Fotos nach Gruppen und Monaten</p>
         </div>
 
+        <!-- Einstellungen -->
         <div class="quick-links">
-            <h3>📱 Tablet-Links für Slideshows</h3>
-            <div class="links-grid" id="tabletLinks">
-                <div class="loading">Lade Gruppen...</div>
+            <h3>⚙️ Slideshow-Einstellungen</h3>
+            <div class="settings-panel">
+                <div>
+                    <label for="slideSpeed">🕐 Bildwechsel:</label>
+                    <select id="slideSpeed">
+                        <option value="3000">3 Sekunden (schnell)</option>
+                        <option value="5000" selected>5 Sekunden (normal)</option>
+                        <option value="8000">8 Sekunden (langsam)</option>
+                        <option value="10000">10 Sekunden</option>
+                        <option value="15000">15 Sekunden</option>
+                        <option value="20000">20 Sekunden</option>
+                        <option value="30000">30 Sekunden</option>
+                    </select>
+                </div>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="shuffleImages">
+                    🔀 Zufällige Reihenfolge
+                </label>
             </div>
         </div>
 
+        <!-- Tablet-Links -->
+        <div class="quick-links">
+            <h3>📱 Tablet-Links für Slideshows</h3>
+            <div class="links-grid" id="tabletLinks">
+                <p>Lade Gruppen...</p>
+            </div>
+        </div>
+
+        <!-- Gruppen-Karten -->
         <div class="folder-grid" id="folderGrid">
             <div class="loading">Lade Gruppen-Daten...</div>
         </div>
     </div>
 
-    <button class="refresh-btn" onclick="loadAllFolders()" title="Aktualisieren">
-        ↻
-    </button>
+    <button class="refresh-btn" onclick="loadAllFolders()" title="Aktualisieren">↻</button>
 
     <script>
         // Wird während Installation automatisch ersetzt
-        const folders = ['käfer', 'bienen', 'schmetterlinge', 'frösche', 'mäuse']; // Beispiel - wird dynamisch generiert
+        var folders = ['kaefer', 'bienen', 'schmetterlinge', 'froesche', 'maeuse'];
+        var folderData = {};
+        var monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
 
-        let folderData = {};
-        const monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun',
-                           'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
-
-        // Folder-Icons für verschiedene Gruppen
-        const folderIcons = {
-            'käfer': '🐛', 'bienen': '🐝', 'schmetterlinge': '🦋',
-            'frösche': '🐸', 'mäuse': '🐭', 'bären': '🐻',
-            'löwen': '🦁', 'elefanten': '🐘', 'hasen': '🐰',
-            'igel': '🦔', 'marienkäfer': '🐞', 'raupen': '🐛',
-            'default': '📱'
+        var folderIcons = {
+            'kaefer': '🐛', 'bienen': '🐝', 'schmetterlinge': '🦋', 'froesche': '🐸',
+            'maeuse': '🐭', 'baeren': '🐻', 'loewen': '🦁', 'elefanten': '🐘',
+            'hasen': '🐰', 'igel': '🦔', 'marienkaefer': '🐞', 'spatzen': '🐦',
+            'luftpiraten': '🏴‍☠️', 'klapperstoerche': '🦩', 'default': '📱'
         };
 
-        // Icon für Ordner bestimmen
         function getFolderIcon(folderName) {
-            const name = folderName.toLowerCase();
+            var name = folderName.toLowerCase();
             return folderIcons[name] || folderIcons.default;
         }
 
-        // Tablet-Links erstellen
-        function createTabletLinks() {
-            const linksContainer = document.getElementById('tabletLinks');
-            linksContainer.innerHTML = '';
-
-            folders.forEach((folder, index) => {
-                const icon = getFolderIcon(folder);
-                const displayName = folder.charAt(0).toUpperCase() + folder.slice(1);
-                const url = `/scripts/slideshow.html?folder=${folder}`;
-
-                const linkCard = document.createElement('a');
-                linkCard.className = 'link-card';
-                linkCard.href = url;
-                linkCard.target = '_blank';
-
-                linkCard.innerHTML = `
-                    <div class="link-icon">${icon}</div>
-                    <div class="link-text">
-                        <h4>Tablet ${index + 1}: ${displayName}</h4>
-                        <p>${url}</p>
-                    </div>
-                `;
-
-                linksContainer.appendChild(linkCard);
-            });
-        }
-
-        // Ordner-Informationen laden
-        async function loadFolderInfo(folderName) {
-            try {
-                const response = await fetch(`/scripts/get_images.php?folder=${encodeURIComponent(folderName)}&month=all&t=${Date.now()}`);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-
-                const data = await response.json();
-                folderData[folderName] = data;
-                return data;
-            } catch (error) {
-                console.error(`Fehler beim Laden von ${folderName}:`, error);
-                return {
-                    success: false,
-                    error: error.message,
-                    count: 0,
-                    images: []
-                };
+        function getSlideShowUrl(folderName, month) {
+            var delay = document.getElementById('slideSpeed').value;
+            var shuffle = document.getElementById('shuffleImages').checked;
+            var url = '/scripts/slideshow.html?folder=' + encodeURIComponent(folderName) + '&delay=' + delay;
+            if (shuffle) {
+                url += '&shuffle=true';
             }
-        }
-
-        // Alle Ordner laden
-        async function loadAllFolders() {
-            const grid = document.getElementById('folderGrid');
-            grid.innerHTML = '<div class="loading">Lade Gruppen-Daten...</div>';
-
-            // Tablet-Links erstellen
-            createTabletLinks();
-
-            const promises = folders.map(folder => loadFolderInfo(folder));
-            const results = await Promise.all(promises);
-
-            // Grid leeren
-            grid.innerHTML = '';
-
-            // Karten erstellen
-            results.forEach((data, index) => {
-                const folderName = folders[index];
-                if (data && data.success) {
-                    createFolderCard(folderName, data);
-                } else {
-                    createErrorCard(folderName, data?.error || 'Unbekannter Fehler');
-                }
-            });
-        }
-
-        // Ordner-Karte erstellen mit Monats-Übersicht
-        function createFolderCard(folderName, data) {
-            const grid = document.getElementById('folderGrid');
-            const card = document.createElement('div');
-            card.className = 'folder-card';
-
-            const displayName = folderName.charAt(0).toUpperCase() + folderName.slice(1);
-            const imageCount = data.count || 0;
-            const icon = getFolderIcon(folderName);
-
-            // Bilder nach Monaten gruppieren
-            const monthGroups = {};
-            if (data.images) {
-                data.images.forEach(img => {
-                    const monthKey = img.month || 'ungrouped';
-                    if (!monthGroups[monthKey]) {
-                        monthGroups[monthKey] = [];
-                    }
-                    monthGroups[monthKey].push(img);
-                });
-            }
-
-            // Monate sortieren (neueste zuerst)
-            const sortedMonths = Object.keys(monthGroups).sort((a, b) => {
-                if (a === 'ungrouped') return 1;
-                if (b === 'ungrouped') return -1;
-                return b.localeCompare(a);
-            });
-
-            card.innerHTML = `
-                <div class="folder-header">
-                    <div class="folder-name">
-                        <div class="folder-icon">${icon}</div>
-                        ${displayName}
-                    </div>
-                    <div class="folder-badge">${imageCount} Bilder</div>
-                </div>
-
-                <div class="button-group">
-                    <a href="/Fotos/${folderName}" target="_blank" class="btn btn-primary">
-                        ▶️ Slideshow öffnen
-                    </a>
-                    <button class="btn btn-secondary" onclick="openWindowsFolder('${folderName}')">
-                        📁 Windows-Ordner
-                    </button>
-                    <button class="btn btn-secondary" onclick="toggleMonths('${folderName}')">
-                        📅 Monate anzeigen
-                    </button>
-                </div>
-
-                <div class="months-section" id="months-${folderName}" style="display: none;">
-                    <div class="months-header">
-                        <h4>📅 Monate (${sortedMonths.length})</h4>
-                        <small>${imageCount} Bilder gesamt</small>
-                    </div>
-                    <div class="months-grid">
-                        ${sortedMonths.map(month => {
-                            const count = monthGroups[month].length;
-                            const monthDisplay = formatMonthDisplay(month);
-                            return `
-                                <div class="month-item" onclick="openMonthSlideshow('${folderName}', '${month}')">
-                                    <div class="month-name">${monthDisplay}</div>
-                                    <div class="month-count">${count} Bilder</div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-
-            grid.appendChild(card);
-        }
-
-        // Monats-Anzeige formatieren
-        function formatMonthDisplay(monthKey) {
-            if (monthKey === 'ungrouped') {
-                return 'Unsortiert';
-            }
-
-            const parts = monthKey.split('/');
-            if (parts.length === 2) {
-                const year = parts[0];
-                const month = parseInt(parts[1]) - 1;
-                return `${monthNames[month]} ${year}`;
-            }
-
-            return monthKey;
-        }
-
-        // Fehler-Karte erstellen
-        function createErrorCard(folderName, error) {
-            const grid = document.getElementById('folderGrid');
-            const card = document.createElement('div');
-            card.className = 'folder-card';
-
-            const displayName = folderName.charAt(0).toUpperCase() + folderName.slice(1);
-            const icon = getFolderIcon(folderName);
-
-            card.innerHTML = `
-                <div class="folder-header">
-                    <div class="folder-name">
-                        <div class="folder-icon">${icon}</div>
-                        ${displayName}
-                    </div>
-                    <div class="folder-badge" style="background: #ff6b6b;">Fehler</div>
-                </div>
-
-                <div class="error">
-                    ⚠️ Fehler beim Laden: ${error}<br>
-                    <small>Prüfe die Ordner-Berechtigungen oder erstelle den Ordner neu.</small>
-                </div>
-
-                <div class="button-group">
-                    <button class="btn btn-secondary" onclick="loadAllFolders()">
-                        🔄 Erneut versuchen
-                    </button>
-                    <button class="btn btn-secondary" onclick="openWindowsFolder('${folderName}')">
-                        📁 Windows-Ordner
-                    </button>
-                </div>
-            `;
-
-            grid.appendChild(card);
-        }
-
-        // Monate anzeigen/verstecken
-        function toggleMonths(folderName) {
-            const monthsSection = document.getElementById(`months-${folderName}`);
-
-            if (monthsSection.style.display === 'none') {
-                monthsSection.style.display = 'block';
-            } else {
-                monthsSection.style.display = 'none';
-            }
-        }
-
-        // Monats-Slideshow öffnen
-        function openMonthSlideshow(folderName, month) {
-            let url = `/Fotos/${folderName}`;
-
-            if (month !== 'ungrouped') {
-                url += `?month=${encodeURIComponent(month)}`;
-            }
-
-            window.open(url, '_blank');
-        }
-        // Windows-Ordner öffnen (verbessert)
-        function openWindowsFolder(folderName) {
-            var hostname = window.location.hostname || 'bilderrahmen.local';
-            var sambaPath = '\\\\' + hostname + '\\' + folderName;
-            
-            // Zwischenablage-API mit Fallback
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(sambaPath).then(function() {
-                    alert('✅ Pfad kopiert!\n\n' + sambaPath + '\n\n👉 Windows Explorer öffnen (Win+E)\n👉 Strg+V in die Adressleiste einfügen\n👉 Mit Kita-Zugangsdaten anmelden');
-                }).catch(function() {
-                    prompt('📁 Kopiere diesen Pfad in den Windows Explorer:', sambaPath);
-                });
-            } else {
-                prompt('📁 Kopiere diesen Pfad in den Windows Explorer:', sambaPath);
-            }
-        }
-
-        // Event-Listener
-        document.addEventListener('DOMContentLoaded', () => {
-            loadAllFolders();
-        });
-
-        // Auto-Refresh alle 2 Minuten
-        setInterval(() => {
-            loadAllFolders();
-        }, 120000);
-
-        // Service Worker für bessere Performance (optional)
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').catch(() => {
-                console.log('Service Worker nicht verfügbar');
-            });
-        }
-    </script>
-</body>
-</html>
+            if
