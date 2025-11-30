@@ -8,8 +8,8 @@
 
 ## ⚡ Ein-Zeilen-Installation
 
-```bash
-curl -sSL https://raw.githubusercontent.com/BratwurstPeter77/Bilderrahmen-Kita/main/install.sh | bash
+```curl -sSL https://raw.githubusercontent.com/BratwurstPeter77/Bilderrahmen-Kita/main/install.sh -o install.sh && chmod +x install.sh && ./install.sh
+bash
 ```
 
 
