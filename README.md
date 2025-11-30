@@ -10,7 +10,6 @@
 
 ```
 curl -sSL https://raw.githubusercontent.com/BratwurstPeter77/Bilderrahmen-Kita/main/install.sh -o install.sh && chmod +x install.sh && ./install.sh
-bash
 ```
 
 
